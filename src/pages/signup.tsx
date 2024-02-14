@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import styled from "styled-components";
@@ -20,11 +21,16 @@ import DaumPostcodeEmbed from "react-daum-postcode";
 // }
 
 const SignUpPage = () => {
+  const searchParams = useSearchParams();
+  const signUpType = searchParams.get("type");
   const { register, handleSubmit } = useForm();
   const [address, setAddress] = useState<string>("");
   const [openPostModal, setOpenPostModal] = useState<boolean>(false);
   const handleModal = () => setOpenPostModal((prev: boolean) => !prev);
-  const onSubmit: SubmitHandler<any> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<any> = (data) => {
+    // signUpType
+    console.log(data);
+  };
   const handleComplete = (data: any) => {
     let fullAddress = data.address;
     let extraAddress = "";

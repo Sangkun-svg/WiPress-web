@@ -5,11 +5,9 @@ import styled from "styled-components";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Link from "next/link";
 
-interface Props {}
-
 const SignInPage = () => {
   const router = useRouter();
-  const moveToSignUp = () => router.push("/signup");
+  const moveToSignUpTypePage = () => router.push("/signupType");
   const { register, handleSubmit } = useForm();
   const onSubmit: SubmitHandler<any> = (data) => console.log(data);
 
@@ -32,7 +30,7 @@ const SignInPage = () => {
         <p>/</p>
         <Link href={"/findPw"}>비밀번호 찾기</Link>
       </AnchorRow>
-      <OutLineButton onClick={moveToSignUp}>
+      <OutLineButton onClick={moveToSignUpTypePage}>
         <p>회원가입</p>
       </OutLineButton>
     </Container>
