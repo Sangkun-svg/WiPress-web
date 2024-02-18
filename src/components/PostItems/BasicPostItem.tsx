@@ -7,7 +7,7 @@ interface Props {
   imageUrl?: string;
 }
 
-const PostItem = ({ title, descriptoin, imageUrl }: Props) => {
+const BasicPostItem = ({ title, descriptoin, imageUrl }: Props) => {
   {
     /* TODO: Implement OnClick Post and Detail Page */
   }
@@ -37,7 +37,7 @@ const PostItem = ({ title, descriptoin, imageUrl }: Props) => {
   );
 };
 
-export default PostItem;
+export default BasicPostItem;
 
 const Container = styled.div`
   display: flex;
