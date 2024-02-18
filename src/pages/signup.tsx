@@ -6,6 +6,7 @@ import * as z from "zod";
 import styled from "styled-components";
 import { COLOR } from "@/constants/color";
 import DaumPostcodeEmbed from "react-daum-postcode";
+import { Backdrop } from "@mui/material";
 
 // interface IFormInput {
 //   name: string;
@@ -86,7 +87,17 @@ const SignUpPage = () => {
             <p>우편번호 검색</p>
           </Button>
         </div>
-        {openPostModal && <DaumPostcodeEmbed onComplete={handleComplete} />}
+        {/* TODO: get Code about Modal from GrowingPeeple and apply    */}
+        {/* TODO: using BackDrop from MUI */}
+        {/* {openPostModal && (
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={open}
+            onClick={handleClose}
+          >
+            <DaumPostcodeEmbed onComplete={handleComplete} />
+          </Backdrop>
+        )} */}
         <Input
           placeholder="상세주소를 입력하세요 (ex. 101호 101호)"
           {...register("addressDetail", { required: true })}
@@ -106,6 +117,8 @@ const SignUpPage = () => {
           {...register("position", { required: true })}
         />
       </FormElement>
+      {/* TODO: Change Submit Button design */}
+      {/* TODO: Add PushAlarm Checkbox  */}
       <button type="submit">제출하기</button>
     </Form>
   );
