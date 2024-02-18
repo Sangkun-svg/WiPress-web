@@ -1,16 +1,25 @@
 import styled from "styled-components";
-import BottomNavigation from "@mui/material/BottomNavigation";
-import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  styled as muiStyled,
+} from "@mui/material";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import AddBoxRoundedIcon from "@mui/icons-material/AddBoxRounded";
-import PermIdentityIcon from "@mui/icons-material/PermIdentity";
-import { useState } from "react";
-import { styled as muiStyled } from "@mui/material/styles";
+import PersonIcon from "@mui/icons-material/Person";
+import { useEffect, useState } from "react";
 import { COLOR } from "@/constants/color";
-import { useRouter } from "next/router";
+import { useRouter, usePathname } from "next/navigation";
+
+const setCurrentTab = (pathname: string): number | undefined => {
+  if (pathname === "/") return 0;
+  if (pathname === "/requestPost") return 1;
+  if (pathname === "/my") return 2;
+};
 
 const BottomNav = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const [value, setValue] = useState(0);
   const handleMoveBoard = () => router.push("/");
   const handleMoveRequestPost = () => router.push("/requestPost");
@@ -24,6 +33,11 @@ const BottomNav = () => {
       color: ${COLOR.Gray800};
     }
   `;
+
+  useEffect(() => {
+    const currentTabNumber = setCurrentTab(pathname);
+    setValue(currentTabNumber as number);
+  }, [pathname]);
 
   return (
     <CustomBottomNavigation
@@ -55,9 +69,7 @@ const BottomNav = () => {
         label="마이페이지"
         onClick={handleMoveMy}
         icon={
-          <PermIdentityIcon
-            style={{ color: value === 2 ? "#000" : COLOR.Gray300 }}
-          />
+          <PersonIcon style={{ color: value === 2 ? "#000" : COLOR.Gray300 }} />
         }
       />
     </CustomBottomNavigation>
