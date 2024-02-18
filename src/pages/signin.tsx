@@ -13,6 +13,7 @@ const SignInPage = () => {
 
   return (
     <Container>
+      {/* TODO: Add Origin Logo */}
       <DemoLogo />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Input placeholder="아이디를 입력해 주세요" {...register("id")} />

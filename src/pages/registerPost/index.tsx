@@ -18,6 +18,9 @@ const RegisterPost = () => {
           <BasicPostItem />
           <BasicPostItem />
         </PostItemList>
+        {/* TODO: implement Comments */}
+        {/* TODO: implement PickGroups */}
+        {/* TODO: implement MyPick Posts */}
       </Container>
     </Layout>
   );

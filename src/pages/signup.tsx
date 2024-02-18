@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { COLOR } from "@/constants/color";
 import DaumPostcodeEmbed from "react-daum-postcode";
 import { Backdrop } from "@mui/material";
+import NavBar from "../components/NavBar";
 
 // interface IFormInput {
 //   name: string;
@@ -45,82 +46,80 @@ const SignUpPage = () => {
       fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
     }
     setAddress(fullAddress);
+    setOpenPostModal(false);
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormElement>
-        <Label>이름</Label>
-        <Input
-          placeholder="ex. 홍길동"
-          {...register("name", { required: true })}
-        />
-      </FormElement>
-      <FormElement>
-        <Label>휴대폰 번호</Label>
-        <Input
-          type="number"
-          maxLength={11}
-          placeholder="ex. 010-0000-0000"
-          {...register("phoneNumber", { required: true })}
-        />
-      </FormElement>
-      <FormElement>
-        <Label>생년월일</Label>
-        <Input
-          type="number"
-          maxLength={8}
-          placeholder="ex. 1990-03-10"
-          {...register("birth", { required: true })}
-        />
-      </FormElement>
-      <FormElement>
-        <Label>주소</Label>
-        <div style={{ display: "flex", gap: 10 }}>
+    <>
+      <NavBar title={"회원가입"} />
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <FormElement>
+          <Label>이름</Label>
+          <Input placeholder="ex. 홍길동" {...register("name")} />
+        </FormElement>
+        <FormElement>
+          <Label>휴대폰 번호</Label>
           <Input
-            value={address}
-            style={{ width: "75%" }}
-            placeholder="우편번호를 검색하세요"
-            {...register("address")}
+            type="number"
+            maxLength={11}
+            placeholder="ex. 010-0000-0000"
+            {...register("phoneNumber")}
           />
-          <Button style={{ width: "25%" }} onClick={handleModal}>
-            <p>우편번호 검색</p>
-          </Button>
-        </div>
-        {/* TODO: get Code about Modal from GrowingPeeple and apply    */}
-        {/* TODO: using BackDrop from MUI */}
-        {/* {openPostModal && (
-          <Backdrop
-            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={open}
-            onClick={handleClose}
-          >
-            <DaumPostcodeEmbed onComplete={handleComplete} />
-          </Backdrop>
-        )} */}
-        <Input
-          placeholder="상세주소를 입력하세요 (ex. 101호 101호)"
-          {...register("addressDetail", { required: true })}
-        />
-      </FormElement>
-      <FormElement>
-        <Label>소속</Label>
-        <Input
-          placeholder="ex. 00소속"
-          {...register("party", { required: true })}
-        />
-      </FormElement>
-      <FormElement>
-        <Label>직책</Label>
-        <Input
-          placeholder="ex. 00직책"
-          {...register("position", { required: true })}
-        />
-      </FormElement>
-      {/* TODO: Change Submit Button design */}
-      {/* TODO: Add PushAlarm Checkbox  */}
-      <button type="submit">제출하기</button>
-    </Form>
+        </FormElement>
+        <FormElement>
+          <Label>생년월일</Label>
+          <Input
+            type="number"
+            maxLength={8}
+            placeholder="ex. 1990-03-10"
+            {...register("birth")}
+          />
+        </FormElement>
+        <FormElement>
+          <Label>주소</Label>
+          <div style={{ display: "flex", gap: 10 }}>
+            <Input
+              value={address}
+              style={{ width: "75%" }}
+              placeholder="우편번호를 검색하세요"
+              {...register("address")}
+            />
+            <Button style={{ width: "25%" }} onClick={handleModal}>
+              <p>우편번호 검색</p>
+            </Button>
+          </div>
+          {openPostModal && (
+            <Backdrop
+              sx={{
+                color: "#fff",
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                padding: "0 16px",
+              }}
+              open={openPostModal}
+              onClick={handleModal}
+            >
+              <DaumPostcodeEmbed onComplete={handleComplete} />
+            </Backdrop>
+          )}
+          <Input
+            placeholder="상세주소를 입력하세요 (ex. 101호 101호)"
+            {...register("addressDetail")}
+          />
+        </FormElement>
+        <FormElement>
+          <Label>소속</Label>
+          <Input placeholder="ex. 00소속" {...register("party")} />
+        </FormElement>
+        <FormElement>
+          <Label>직책</Label>
+          <Input placeholder="ex. 00직책" {...register("position")} />
+        </FormElement>
+        {/* TODO: Add PushAlarm Checkbox  */}
+        <Button type="submit">
+          <p>제출하기</p>
+        </Button>
+      </Form>
+    </>
   );
 };
 
@@ -129,7 +128,7 @@ const Form = styled.form`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 0 16px;
+  padding: 18px 16px 12px;
   gap: 30px;
 `;
 

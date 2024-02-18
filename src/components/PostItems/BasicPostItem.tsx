@@ -39,11 +39,10 @@ const BasicPostItem = ({ title, descriptoin, imageUrl }: Props) => {
 
 export default BasicPostItem;
 
-const Container = styled.div`
+const Container = styled.div<{ hasImage?: boolean }>`
   display: flex;
   padding: 8px;
-  /* TODO: Change Padding Value accoding to has ImageURL  */
-  /* ImageURL ? 8px : 20px 18px */
+  padding: ${(props) => (props.hasImage ? "8px" : "20px 18px")};
   border-radius: 6px;
   background: #f7f7fa;
   gap: 10px;
