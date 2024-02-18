@@ -1,5 +1,5 @@
 import Layout from "../../components/Layout";
-import PostItem from "../../components/PostItem";
+import BasicPostItem from "../../components/PostItems/BasicPostItem";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -13,10 +13,10 @@ const RegisterPost = () => {
         </RowDiv>
         {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
-          <PostItem />
-          <PostItem />
-          <PostItem />
-          <PostItem />
+          <BasicPostItem />
+          <BasicPostItem />
+          <BasicPostItem />
+          <BasicPostItem />
         </PostItemList>
       </Container>
     </Layout>
