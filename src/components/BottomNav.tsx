@@ -67,5 +67,8 @@ const BottomNav = () => {
 export default BottomNav;
 
 const CustomBottomNavigation = styled(BottomNavigation)`
+  position: sticky;
+  bottom: 0;
+  width: 100%;
   gap: 46px;
 `;
