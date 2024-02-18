@@ -12,23 +12,19 @@ const NavBar = ({ title }: Props) => {
   const handleClick = () => router.back();
 
   return (
-    <CustomAppBar position="sticky">
+    <AppBar
+      position="sticky"
+      style={{ background: "#fff", minHeight: "44px", boxShadow: "none" }}
+    >
       <Toolbar style={{ gap: 12 }}>
         <IconButton edge="start" aria-label="menu" onClick={handleClick}>
           <ArrowBackIosNewTwoToneIcon />
         </IconButton>
         <Typography>{title}</Typography>
       </Toolbar>
-    </CustomAppBar>
+    </AppBar>
   );
 };
-
-const CustomAppBar = styled(AppBar)`
-  background-color: #fff;
-  min-height: none;
-  height: 44px;
-  box-shadow: none;
-`;
 
 const Typography = styled.p`
   color: #242424;

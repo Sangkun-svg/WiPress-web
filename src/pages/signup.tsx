@@ -1,26 +1,10 @@
-import React, { useRef, useState } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useSearchParams } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import styled from "styled-components";
-import { COLOR } from "@/constants/color";
 import DaumPostcodeEmbed from "react-daum-postcode";
-import { Backdrop } from "@mui/material";
+import { Backdrop, Checkbox } from "@mui/material";
 import NavBar from "../components/NavBar";
-
-// interface IFormInput {
-//   name: string;
-//   phoneNumber: number; // zod
-//   birth: number;
-//   address?: {
-//     // ??
-//     postNumber: string;
-//     detailAdress: string;
-//   };
-//   party: string; // 소속
-//   position: string; // 직책
-// }
 
 const SignUpPage = () => {
   const searchParams = useSearchParams();
@@ -28,9 +12,14 @@ const SignUpPage = () => {
   const { register, handleSubmit } = useForm();
   const [address, setAddress] = useState<string>("");
   const [openPostModal, setOpenPostModal] = useState<boolean>(false);
+  const [checked, setChecked] = useState(true);
   const handleModal = () => setOpenPostModal((prev: boolean) => !prev);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
   const onSubmit: SubmitHandler<any> = (data) => {
-    // signUpType
+    // ...signUpType
+    // ...checked
     console.log(data);
   };
   const handleComplete = (data: any) => {
@@ -114,7 +103,15 @@ const SignUpPage = () => {
           <Label>직책</Label>
           <Input placeholder="ex. 00직책" {...register("position")} />
         </FormElement>
-        {/* TODO: Add PushAlarm Checkbox  */}
+        <div style={{ width: "100%", display: "flex", height: "24px" }}>
+          <Checkbox
+            size="small"
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ "aria-label": "controlled" }}
+          />
+          <p style={{ margin: 0 }}>앱 푸시 알람 수신에 동의합니다</p>
+        </div>
         <Button type="submit">
           <p>제출하기</p>
         </Button>
@@ -153,7 +150,7 @@ const Input = styled.input`
   max-height: 50px;
   border-radius: 6px;
   padding: 18px 16px;
-  background-color: ${COLOR.BG};
+  background-color: #f7f7fa;
 `;
 
 const Button = styled.button`
