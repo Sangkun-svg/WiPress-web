@@ -1,3 +1,4 @@
+import NavBar from "@/components/NavBar";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 
@@ -9,22 +10,25 @@ const SignUpTypePage = () => {
     router.push("/signup?type=" + type);
 
   return (
-    <Container>
-      <TextWrapper>
-        <p style={{ fontWeight: 500 }}>위스에 오신 걸 환영합니다 :)</p>
-        <p style={{ fontWeight: 400 }}>회원가입 종류를 선택해주세요 </p>
-      </TextWrapper>
-      <ButtonWrapper>
-        <Button onClick={() => moveToSignUp("requester")}>
-          {/* icon 추가 */}
-          <p>보도요청용 회원가입</p>
-        </Button>
-        <Button onClick={() => moveToSignUp("reporter")}>
-          {/* icon 추가 */}
-          <p>기자용 회원가입</p>
-        </Button>
-      </ButtonWrapper>
-    </Container>
+    <>
+      <NavBar title="" />
+      <Container>
+        <TextWrapper>
+          <p style={{ fontWeight: 500 }}>위스에 오신 걸 환영합니다 :)</p>
+          <p style={{ fontWeight: 400 }}>회원가입 종류를 선택해주세요 </p>
+        </TextWrapper>
+        <ButtonWrapper>
+          <Button onClick={() => moveToSignUp("requester")}>
+            {/* icon 추가 */}
+            <p>보도요청용 회원가입</p>
+          </Button>
+          <Button onClick={() => moveToSignUp("reporter")}>
+            {/* icon 추가 */}
+            <p>기자용 회원가입</p>
+          </Button>
+        </ButtonWrapper>
+      </Container>
+    </>
   );
 };
 

@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
-import { DemoLogo } from "@/components/DemoLogo";
 import { COLOR } from "@/constants/color";
 import styled from "styled-components";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Link from "next/link";
+import Image from "next/image";
 
 const SignInPage = () => {
   const router = useRouter();
@@ -13,8 +13,7 @@ const SignInPage = () => {
 
   return (
     <Container>
-      {/* TODO: Add Origin Logo */}
-      <DemoLogo />
+      <Image alt="Logo" src={"/WiPressLogo.webp"} width={210} height={130} />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Input placeholder="아이디를 입력해 주세요" {...register("id")} />
         <Input
@@ -42,6 +41,7 @@ export default SignInPage;
 
 const Container = styled.div`
   width: 100%;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
