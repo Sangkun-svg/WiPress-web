@@ -26,7 +26,7 @@ const Home = () => {
     <Layout>
       <Container>
         {TAB_ITEMS.map((el) => {
-          return <ShortBoard type={el.key} label={el.label} />;
+          return <ShortBoard key={el.key} type={el.key} label={el.label} />;
         })}
       </Container>
     </Layout>
