@@ -28,7 +28,7 @@ const ShortBoard = ({ label, type, data }: Props) => {
 export default ShortBoard;
 
 const Container = styled.div`
-  max-width: 358px;
+  /* max-width: 358px; */
   width: calc(100% - 16px);
   display: flex;
   align-items: center;

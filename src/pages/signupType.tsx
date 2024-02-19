@@ -36,6 +36,8 @@ export default SignUpTypePage;
 
 const Container = styled.div`
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   height: 100vh;
   display: flex;
   justify-content: center;

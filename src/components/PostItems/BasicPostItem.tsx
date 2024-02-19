@@ -12,7 +12,7 @@ const BasicPostItem = ({ title, descriptoin, imageUrl }: Props) => {
     /* TODO: Implement OnClick Post and Detail Page */
   }
   return (
-    <Container>
+    <Container hasImage={!!imageUrl}>
       <Image
         alt="demo-image"
         src={
@@ -40,6 +40,7 @@ const BasicPostItem = ({ title, descriptoin, imageUrl }: Props) => {
 export default BasicPostItem;
 
 const Container = styled.div<{ hasImage?: boolean }>`
+  cursor: pointer;
   display: flex;
   padding: 8px;
   padding: ${(props) => (props.hasImage ? "8px" : "20px 18px")};

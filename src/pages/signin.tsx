@@ -21,6 +21,7 @@ const SignInPage = () => {
           type={"password"}
           {...register("password")}
         />
+        {/* TODO: 로그인 실패 시 UI  */}
         <Button type="submit">
           <p>로그인</p>
         </Button>
@@ -41,12 +42,14 @@ export default SignInPage;
 
 const Container = styled.div`
   width: 100%;
+  max-width: 600px;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 0 16px;
+  margin: 0 auto;
 `;
 
 const Form = styled.form`

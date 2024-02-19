@@ -12,7 +12,7 @@ const SignUpPage = () => {
   const { register, handleSubmit } = useForm();
   const [address, setAddress] = useState<string>("");
   const [openPostModal, setOpenPostModal] = useState<boolean>(false);
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(false);
   const handleModal = () => setOpenPostModal((prev: boolean) => !prev);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -68,6 +68,7 @@ const SignUpPage = () => {
           <Label>주소</Label>
           <div style={{ display: "flex", gap: 10 }}>
             <Input
+              disabled
               value={address}
               style={{ width: "75%" }}
               placeholder="우편번호를 검색하세요"
@@ -121,6 +122,8 @@ const SignUpPage = () => {
 };
 
 const Form = styled.form`
+  max-width: 600px;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;

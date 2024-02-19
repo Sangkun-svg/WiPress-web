@@ -1,10 +1,12 @@
 import BasicPostItem from "../components/PostItems/BasicPostItem";
 import styled from "styled-components";
 import BottomNav from "@/components/BottomNav";
+import NavBar from "@/components/NavBar";
 
 const MyPickPage = () => {
   return (
     <Wrapper>
+      <NavBar title="나의 Pick 모아보기" />
       {/* TODO: Implement Top Back Nav */}
       <Container>
         <RowDiv>
@@ -12,10 +14,9 @@ const MyPickPage = () => {
         </RowDiv>
         {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
+          {[1, 2, 3, 4].map((el, idx) => {
+            return <BasicPostItem key={idx} imageUrl={"true"} />;
+          })}
         </PostItemList>
       </Container>
       <BottomNav />
@@ -26,6 +27,8 @@ const MyPickPage = () => {
 export default MyPickPage;
 
 const Wrapper = styled.div`
+  max-width: 600px;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;

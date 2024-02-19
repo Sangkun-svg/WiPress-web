@@ -2,17 +2,27 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import styled from "styled-components";
 import InsertLinkOutlinedIcon from "@mui/icons-material/InsertLinkOutlined";
 import PhotoSizeSelectActualOutlinedIcon from "@mui/icons-material/PhotoSizeSelectActualOutlined";
+import NavBar from "@/components/NavBar";
+import { useState, useRef } from "react";
 
 interface Props {}
 
 const RequestPost = () => {
   const { register, handleSubmit } = useForm();
+  // TODO<Client>: Implement Store Images to State & show names with <a> Tag
+  // TODO<Server>: Implement Save Images to DB
+  const [images, setImages] = useState([]);
+  // TODO<Client>: Implement Store Files to State & show names with <a> Tag
+  // TODO<Server>: Implement Save Files to DB
+  const [files, setFIles] = useState([]);
+
   const onSubmit: SubmitHandler<any> = (data) => {
     console.log(data);
   };
 
   return (
     <Container>
+      <NavBar title={"보도자료 작성"} />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormElement>
           <Label>제목</Label>
@@ -72,7 +82,11 @@ const RequestPost = () => {
 
 export default RequestPost;
 
-const Container = styled.div``;
+const Container = styled.div`
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+`;
 const Form = styled.form`
   display: flex;
   justify-content: center;

@@ -14,7 +14,7 @@ import { useRouter, usePathname } from "next/navigation";
 const setCurrentTab = (pathname: string): number | undefined => {
   if (pathname === "/") return 0;
   if (pathname === "/requestPost") return 1;
-  if (pathname === "/my") return 2;
+  if (pathname === "/my" || pathname === "/myPicks") return 2;
 };
 
 const BottomNav = () => {
@@ -79,7 +79,7 @@ const BottomNav = () => {
 export default BottomNav;
 
 const CustomBottomNavigation = styled(BottomNavigation)`
-  position: sticky;
+  position: fixed;
   bottom: 0;
   width: 100%;
   gap: 46px;
