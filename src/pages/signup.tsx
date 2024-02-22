@@ -5,7 +5,6 @@ import styled from "styled-components";
 import DaumPostcodeEmbed from "react-daum-postcode";
 import { Backdrop, Checkbox } from "@mui/material";
 import NavBar from "../components/NavBar";
-import { supabase } from "@/utils/database";
 import axios from "axios";
 
 const SignUpPage = () => {

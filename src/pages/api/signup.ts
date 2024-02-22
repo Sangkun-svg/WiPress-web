@@ -1,10 +1,7 @@
 import { supabase } from "@/utils/database";
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest } from "next";
 
-export default async function signUpHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function signUpHandler(req: NextApiRequest) {
   try {
     const formdata = req.body.data;
     const { data, error: signUpError } = await supabase
@@ -23,9 +20,10 @@ export default async function signUpHandler(
         },
       ])
       .select();
-    if (signUpError) return signUpError;
+    if (data) return data;
+    if (signUpError) return console.error(signUpError);
     return data;
-  } catch (signUpError) {
-    throw new Error("SIGN UP Error");
+  } catch (error) {
+    console.error(error);
   }
 }
