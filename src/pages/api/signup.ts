@@ -1,15 +1,26 @@
 import { supabase } from "@/utils/database";
+import { hash } from "bcrypt";
 import type { NextApiRequest } from "next";
 
 export default async function signUpHandler(req: NextApiRequest) {
   try {
     const formdata = req.body.data;
-    const { data, error: signUpError } = await supabase
+    const { data: alreadyRegisteredUser } = await supabase
+      .from("User")
+      .select("phoneNumber")
+      .eq("phoneNumber", formdata.phoneNumber);
+    if (alreadyRegisteredUser!.length > 0)
+      return {
+        user: null,
+        status: "alreadyRegistered",
+      };
+    const hashedPassword = await hash(formdata.password, 12);
+    const { data: newUser, error: signUpError } = await supabase
       .from("User")
       .insert([
         {
           phoneNumber: formdata.phoneNumber,
-          password: formdata.password,
+          password: hashedPassword,
           name: formdata.name,
           birth: formdata.birth,
           address: formdata.address + formdata.addressDetail,
@@ -20,9 +31,8 @@ export default async function signUpHandler(req: NextApiRequest) {
         },
       ])
       .select();
-    if (data) return data;
-    if (signUpError) return console.error(signUpError);
-    return data;
+    if (newUser) return { user: newUser, status: "success" };
+    if (signUpError) return { user: null, status: "fail" };
   } catch (error) {
     console.error(error);
   }
