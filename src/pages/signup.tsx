@@ -5,6 +5,8 @@ import styled from "styled-components";
 import DaumPostcodeEmbed from "react-daum-postcode";
 import { Backdrop, Checkbox } from "@mui/material";
 import NavBar from "../components/NavBar";
+import { supabase } from "@/utils/database";
+import axios from "axios";
 
 const SignUpPage = () => {
   const searchParams = useSearchParams();
@@ -17,10 +19,15 @@ const SignUpPage = () => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
   };
-  const onSubmit: SubmitHandler<any> = (data) => {
-    // ...signUpType
-    // ...checked
-    console.log(data);
+  const onSubmit: SubmitHandler<any> = async (data) => {
+    await axios.post("/api/signup", {
+      data: {
+        ...data,
+        address: address,
+        agreePushAlarm: checked,
+        type: signUpType,
+      },
+    });
   };
   const handleComplete = (data: any) => {
     let fullAddress = data.address;
@@ -43,17 +50,23 @@ const SignUpPage = () => {
       <NavBar title={"회원가입"} />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormElement>
-          <Label>이름</Label>
-          <Input placeholder="ex. 홍길동" {...register("name")} />
-        </FormElement>
-        <FormElement>
           <Label>휴대폰 번호</Label>
           <Input
-            type="number"
             maxLength={11}
             placeholder="ex. 010-0000-0000"
             {...register("phoneNumber")}
           />
+        </FormElement>
+        <FormElement>
+          <Label>비밀번호</Label>
+          <Input
+            placeholder="비밀번호를 입력해주세요"
+            {...register("password")}
+          />
+        </FormElement>
+        <FormElement>
+          <Label>이름</Label>
+          <Input placeholder="ex. 홍길동" {...register("name")} />
         </FormElement>
         <FormElement>
           <Label>생년월일</Label>
@@ -72,9 +85,12 @@ const SignUpPage = () => {
               value={address}
               style={{ width: "75%" }}
               placeholder="우편번호를 검색하세요"
-              {...register("address")}
             />
-            <Button style={{ width: "25%" }} onClick={handleModal}>
+            <Button
+              type="button"
+              style={{ width: "25%" }}
+              onClick={handleModal}
+            >
               <p>우편번호 검색</p>
             </Button>
           </div>
