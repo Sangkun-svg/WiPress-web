@@ -2,20 +2,31 @@ import { useRouter } from "next/router";
 import { COLOR } from "@/constants/color";
 import styled from "styled-components";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Link from "next/link";
+import Link from "next/Link";
 import Image from "next/image";
+import axios from "axios";
 
 const SignInPage = () => {
   const router = useRouter();
   const moveToSignUpTypePage = () => router.push("/signupType");
   const { register, handleSubmit } = useForm();
-  const onSubmit: SubmitHandler<any> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<any> = async (data: {
+    phoneNumber: string;
+    password: string;
+  }) => {
+    await axios.post("/api/signin", {
+      data,
+    });
+  };
 
   return (
     <Container>
       <Image alt="Logo" src={"/WiPressLogo.webp"} width={210} height={130} />
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Input placeholder="아이디를 입력해 주세요" {...register("id")} />
+        <Input
+          placeholder="아이디를 입력해 주세요"
+          {...register("phoneNumber")}
+        />
         <Input
           placeholder="비밀번호를 입력해 주세요"
           type={"password"}
@@ -26,11 +37,11 @@ const SignInPage = () => {
           <p>로그인</p>
         </Button>
       </Form>
-      <AnchorRow>
+      {/* <AnchorRow>
         <Link href={"/findId"}>아이디 찾기</Link>
         <p>/</p>
         <Link href={"/findPw"}>비밀번호 찾기</Link>
-      </AnchorRow>
+      </AnchorRow> */}
       <OutLineButton onClick={moveToSignUpTypePage}>
         <p>회원가입</p>
       </OutLineButton>
