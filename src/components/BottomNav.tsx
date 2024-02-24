@@ -8,7 +8,6 @@ import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import AddBoxRoundedIcon from "@mui/icons-material/AddBoxRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import { useEffect, useState } from "react";
-import { COLOR } from "@/constants/color";
 import { useRouter, usePathname } from "next/navigation";
 
 const setCurrentTab = (pathname: string): number | undefined => {
@@ -30,7 +29,7 @@ const BottomNav = () => {
       font-size: 0.75rem;
     }
     .Mui-selected {
-      color: ${COLOR.Gray800};
+      color: #303030;
     }
   `;
 
@@ -52,7 +51,7 @@ const BottomNav = () => {
         onClick={handleMoveBoard}
         icon={
           <GridViewRoundedIcon
-            style={{ color: value === 0 ? "#000" : COLOR.Gray300 }}
+            style={{ color: value === 0 ? "#000" : "#AEAEB2" }}
           />
         }
       />
@@ -61,7 +60,7 @@ const BottomNav = () => {
         onClick={handleMoveRequestPost}
         icon={
           <AddBoxRoundedIcon
-            style={{ color: value === 1 ? "#000" : COLOR.Gray300 }}
+            style={{ color: value === 1 ? "#000" : "#AEAEB2" }}
           />
         }
       />
@@ -69,7 +68,7 @@ const BottomNav = () => {
         label="마이페이지"
         onClick={handleMoveMy}
         icon={
-          <PersonIcon style={{ color: value === 2 ? "#000" : COLOR.Gray300 }} />
+          <PersonIcon style={{ color: value === 2 ? "#000" : "#AEAEB2" }} />
         }
       />
     </CustomBottomNavigation>

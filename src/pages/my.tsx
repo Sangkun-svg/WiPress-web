@@ -5,6 +5,8 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import BottomNav from "@/components/BottomNav";
 import { useRouter } from "next/router";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { signOut, useSession } from "next-auth/react";
+import axios from "axios";
 
 const Items = [
   { label: "나의 Pick 모아보기", path: "/myPicks" },
@@ -18,6 +20,7 @@ const Items = [
 const MyPage = () => {
   const router = useRouter();
   const handleItemClick = (path: string) => router.push(path);
+  const handleSignOut = () => signOut({ redirect: false });
 
   return (
     <>
@@ -64,6 +67,7 @@ const MyPage = () => {
 };
 
 export default MyPage;
+
 
 const Container = styled.div`
   width: 100%;
