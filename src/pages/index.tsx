@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Layout from "../components/Layout";
 import ShortBoard from "../components/ShortBoard";
+import { useSession } from "next-auth/react";
 
 export const TAB_ITEMS = [
   {

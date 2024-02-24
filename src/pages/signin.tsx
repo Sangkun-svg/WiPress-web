@@ -1,23 +1,34 @@
-import { useRouter } from "next/router";
-import { COLOR } from "@/constants/color";
 import styled from "styled-components";
-import { useForm, SubmitHandler } from "react-hook-form";
-import Link from "next/Link";
 import Image from "next/image";
-import axios from "axios";
+import { useRouter } from "next/router";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 const SignInPage = () => {
   const router = useRouter();
+  const { data: user, status } = useSession();
   const moveToSignUpTypePage = () => router.push("/signupType");
   const { register, handleSubmit } = useForm();
   const onSubmit: SubmitHandler<any> = async (data: {
     phoneNumber: string;
     password: string;
   }) => {
-    await axios.post("/api/signin", {
-      data,
+    signIn("credentials", {
+      phoneNumber: data.phoneNumber,
+      password: data.password,
+      redirect: false,
     });
   };
+
+  const logout = () =>
+    signOut({
+      redirect: false,
+    });
+  console.log({ user, status });
+  useEffect(() => {
+    console.log({ user, status });
+  }, []);
 
   return (
     <Container>
@@ -35,6 +46,9 @@ const SignInPage = () => {
         {/* TODO: 로그인 실패 시 UI  */}
         <Button type="submit">
           <p>로그인</p>
+        </Button>
+        <Button type="button" onClick={logout}>
+          <p>로그아웃</p>
         </Button>
       </Form>
       {/* <AnchorRow>
@@ -84,7 +98,7 @@ const Input = styled.input`
   max-height: 50px;
   border-radius: 6px;
   padding: 18px 16px;
-  background-color: ${COLOR.BG};
+  background-color: #f7f7fa;
 `;
 
 const Button = styled.button`
