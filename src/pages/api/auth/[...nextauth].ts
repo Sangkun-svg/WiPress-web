@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-
+  secret: 'qwer1234', // TODO: should be change
   pages: {
     signIn: "/",
   },

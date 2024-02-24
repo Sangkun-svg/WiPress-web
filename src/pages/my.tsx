@@ -5,22 +5,22 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import BottomNav from "@/components/BottomNav";
 import { useRouter } from "next/router";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { signOut, useSession } from "next-auth/react";
-import axios from "axios";
+import { signOut } from "next-auth/react";
+import { authOptions } from "../pages/api/auth/[...nextauth]"
+import { getServerSession } from "next-auth";
+import { supabase } from "@/utils/database";
 
-const Items = [
-  { label: "나의 Pick 모아보기", path: "/myPicks" },
-  { label: "로그아웃", path: "/logout" },
-  { label: "계정삭제", path: "/deleteAccount" },
-  { label: "개인정보처리방침", path: "/police/personal" },
-  { label: "기타", path: "#" },
-  { label: "기타", path: "#" },
-];
-
-const MyPage = () => {
+const MyPage = ({user}: any) => {
   const router = useRouter();
-  const handleItemClick = (path: string) => router.push(path);
-  const handleSignOut = () => signOut({ redirect: false });
+  const handleMove = (path: string) => router.push(path);
+  const handleSignOut = async () => signOut({ callbackUrl: `/` })
+  // TODO : QA this function 
+  const handleDeleteUser = async () => {
+    const { error } = await supabase
+    .from('User')
+    .delete()
+    .eq('id', 'props.id');
+  }
 
   return (
     <>
@@ -40,9 +40,9 @@ const MyPage = () => {
               <Avatar style={{ width: "84px", height: "84px" }} />
             </Badge>
             <ColDiv>
-              <NameText>홍길동</NameText>
-              <UserInfoText>기자</UserInfoText>
-              <UserInfoText>A소속</UserInfoText>
+              <NameText>{user.name}</NameText>
+              <UserInfoText>{user.party}기자</UserInfoText>
+              <UserInfoText>{user.position}소속</UserInfoText>
             </ColDiv>
           </div>
           <Button>
@@ -51,14 +51,26 @@ const MyPage = () => {
           </Button>
         </ProfileContinaer>
         <ItemList>
-          {Items.map((el, idx) => {
-            return (
-              <Item key={idx} onClick={() => handleItemClick(el.path)}>
-                <p>{el.label}</p>
-                <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-              </Item>
-            );
-          })}
+          <Item onClick={() => handleMove("/myPicks")}>
+            <p>나의 Pick 모아보기</p>
+            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+          </Item>
+          <Item onClick={handleSignOut}>
+            <p>로그아웃</p>
+            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+          </Item>
+          <Item onClick={handleSignOut}>
+            <p>로그아웃</p>
+            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+          </Item>
+          <Item onClick={handleDeleteUser}>
+            <p>계정삭제</p>
+            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+          </Item>
+          <Item onClick={() => handleMove("/police/personal")}>
+            <p>개인정보처리방침</p>
+            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+          </Item>
         </ItemList>
       </Container>
       <BottomNav />
@@ -68,6 +80,30 @@ const MyPage = () => {
 
 export default MyPage;
 
+
+export const getServerSideProps = async (context:any) => {
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/signin',
+        permanent: false,
+      },
+    }
+  }
+  const { data: User, error } = await supabase
+      .from('User')
+      .select()
+      .eq("id", (session?.user as any).id);
+        
+  return {props : {
+    user: User![0],
+    isAuthenticated : !!session
+  }}
+}
 
 const Container = styled.div`
   width: 100%;

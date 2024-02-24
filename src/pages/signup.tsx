@@ -6,6 +6,24 @@ import DaumPostcodeEmbed from "react-daum-postcode";
 import { Backdrop, Checkbox } from "@mui/material";
 import NavBar from "../components/NavBar";
 import axios from "axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../pages/api/auth/[...nextauth]"
+
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+ return { props: {} } 
+}
 
 const SignUpPage = () => {
   const searchParams = useSearchParams();

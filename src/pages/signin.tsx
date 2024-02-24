@@ -2,12 +2,28 @@ import styled from "styled-components";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { signIn } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../pages/api/auth/[...nextauth]"
+
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+ return { props: {} } 
+}
 
 const SignInPage = () => {
   const router = useRouter();
-  const { data: user, status } = useSession();
   const moveToSignUpTypePage = () => router.push("/signupType");
   const { register, handleSubmit } = useForm();
   const onSubmit: SubmitHandler<any> = async (data: {
@@ -17,18 +33,9 @@ const SignInPage = () => {
     signIn("credentials", {
       phoneNumber: data.phoneNumber,
       password: data.password,
-      redirect: false,
+      callbackUrl: "/"
     });
   };
-
-  const logout = () =>
-    signOut({
-      redirect: false,
-    });
-  console.log({ user, status });
-  useEffect(() => {
-    console.log({ user, status });
-  }, []);
 
   return (
     <Container>
@@ -47,15 +54,7 @@ const SignInPage = () => {
         <Button type="submit">
           <p>로그인</p>
         </Button>
-        <Button type="button" onClick={logout}>
-          <p>로그아웃</p>
-        </Button>
       </Form>
-      {/* <AnchorRow>
-        <Link href={"/findId"}>아이디 찾기</Link>
-        <p>/</p>
-        <Link href={"/findPw"}>비밀번호 찾기</Link>
-      </AnchorRow> */}
       <OutLineButton onClick={moveToSignUpTypePage}>
         <p>회원가입</p>
       </OutLineButton>
