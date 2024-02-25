@@ -28,8 +28,7 @@ const ShortBoard = ({ label, type, data }: Props) => {
 export default ShortBoard;
 
 const Container = styled.div`
-  /* max-width: 358px; */
-  width: calc(100% - 16px);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +53,6 @@ const PostPreviewItem = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  min-width: 358px;
   min-height: 46px;
   &:not(:last-child) {
     border-bottom: 1px solid #e5e5ea;

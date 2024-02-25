@@ -26,7 +26,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "비밀번호를 입력해주세요", type: "password" },
       },
       async authorize(credentials, req) {
-        console.log("Init authorize");
         let isValidPassword = false;
         const { phoneNumber, password } = credentials as {
           phoneNumber: string;
@@ -36,7 +35,6 @@ export const authOptions: NextAuthOptions = {
           .from("User")
           .select("id,phoneNumber,password")
           .eq("phoneNumber", phoneNumber);
-        console.log({ users });
         const user = users?.[0];
         if (user) {
           isValidPassword = await verifyPassword(password, user.password);
@@ -48,7 +46,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      console.log({ url }, { baseUrl });
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
@@ -67,9 +64,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: 'qwer1234', // TODO: should be change
-  pages: {
-    signIn: "/",
-  },
 };
 
 export default NextAuth(authOptions);

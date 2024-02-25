@@ -10,21 +10,46 @@ import { authOptions } from "../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 
+export const getServerSideProps = async (context:any) => {
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/signin',
+        permanent: false,
+      },
+    }
+  }
+  const { data: User, error } = await supabase
+      .from('User')
+      .select()
+      .eq("id", (session?.user as any).id);
+        
+  return {props : {
+    user: User![0],
+    isAuthenticated : !!session
+  }}
+}
+
 const MyPage = ({user}: any) => {
   const router = useRouter();
   const handleMove = (path: string) => router.push(path);
   const handleSignOut = async () => signOut({ callbackUrl: `/` })
-  // TODO : QA this function 
   const handleDeleteUser = async () => {
     const { error } = await supabase
     .from('User')
     .delete()
-    .eq('id', 'props.id');
+    .eq('id', user.id);
+    if(error) throw new Error("delete user error")
   }
 
   return (
     <>
       <Container>
+        <MainContent>
         <Title>마이페이지</Title>
         <ProfileContinaer>
           <div style={{ display: "flex" }}>
@@ -59,10 +84,6 @@ const MyPage = ({user}: any) => {
             <p>로그아웃</p>
             <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
           </Item>
-          <Item onClick={handleSignOut}>
-            <p>로그아웃</p>
-            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-          </Item>
           <Item onClick={handleDeleteUser}>
             <p>계정삭제</p>
             <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
@@ -72,46 +93,28 @@ const MyPage = ({user}: any) => {
             <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
           </Item>
         </ItemList>
+        </MainContent>
+        <BottomNav />
       </Container>
-      <BottomNav />
     </>
   );
 };
 
 export default MyPage;
 
-
-export const getServerSideProps = async (context:any) => {
-  const req = context.req as any;
-  const res = context.res as any;
-  const session = await getServerSession(req, res, authOptions)
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/signin',
-        permanent: false,
-      },
-    }
-  }
-  const { data: User, error } = await supabase
-      .from('User')
-      .select()
-      .eq("id", (session?.user as any).id);
-        
-  return {props : {
-    user: User![0],
-    isAuthenticated : !!session
-  }}
-}
-
 const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 26px 16px 0;
+  min-height: 100vh; /* Changed height to min-height */
+`;
+
+const MainContent = styled.div`
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  padding: 26px 16px 0;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 60px; /* Adjust as needed */
 `;
 
 const ProfileContinaer = styled.div`

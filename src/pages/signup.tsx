@@ -37,14 +37,19 @@ const SignUpPage = () => {
     setChecked(event.target.checked);
   };
   const onSubmit: SubmitHandler<any> = async (data) => {
-    await axios.post("/api/signup", {
-      data: {
-        ...data,
-        address: address,
-        agreePushAlarm: checked,
-        type: signUpType,
-      },
-    });
+    try {
+      const result = await axios.post("/api/signup", {
+        data: {
+          ...data,
+          address: address,
+          agreePushAlarm: checked,
+          type: signUpType,
+        },
+      });
+      console.log({result})
+    } catch (error) {
+      console.error(error)
+    }
   };
   const handleComplete = (data: any) => {
     let fullAddress = data.address;
@@ -67,6 +72,7 @@ const SignUpPage = () => {
       <NavBar title={"회원가입"} />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <FormElement>
+          {/* 번호 중복 확인 추가 */}
           <Label>휴대폰 번호</Label>
           <Input
             maxLength={11}
@@ -86,6 +92,7 @@ const SignUpPage = () => {
           <Input placeholder="ex. 홍길동" {...register("name")} />
         </FormElement>
         <FormElement>
+          {/* TODO: Input form 변경, library 사용 추천 */}
           <Label>생년월일</Label>
           <Input
             type="number"
