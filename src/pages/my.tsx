@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import { Avatar, Badge } from "@mui/joy";
-import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import { Avatar } from "@mui/joy";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import BottomNav from "@/components/BottomNav";
 import { useRouter } from "next/router";
@@ -9,6 +8,9 @@ import { signOut } from "next-auth/react";
 import { authOptions } from "../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
+import { useRef } from "react";
+import ModalWrapper from '../components/Modal/Modal';
+import UserInfoEditor from "@/components/User/UserInfoEditor";
 
 export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
@@ -36,6 +38,13 @@ export const getServerSideProps = async (context:any) => {
 
 const MyPage = ({user}: any) => {
   const router = useRouter();
+  const modalRef = useRef(null);
+  // TODO: replace using env
+  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
+
+
+  const handleOpenModal = () => (modalRef.current as any).showModal();
+  const handleCloseModal = () => (modalRef.current as any).close();
   const handleMove = (path: string) => router.push(path);
   const handleSignOut = async () => signOut({ callbackUrl: `/` })
   const handleDeleteUser = async () => {
@@ -44,59 +53,53 @@ const MyPage = ({user}: any) => {
     .delete()
     .eq('id', user.id);
     if(error) throw new Error("delete user error")
+    router.push("/")
   }
 
+console.log({user})
   return (
-    <>
-      <Container>
-        <MainContent>
-        <Title>마이페이지</Title>
-        <ProfileContinaer>
-          <div style={{ display: "flex" }}>
-            <Badge
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              variant="plain"
-              badgeContent={
-                <AddCircleOutlineOutlinedIcon style={{ color: "#000" }} />
-              }
-              badgeInset="14%"
-              sx={{ "--Badge-paddingX": "0px" }}
-            >
-              <Avatar style={{ width: "84px", height: "84px" }} />
-            </Badge>
-            <ColDiv>
-              <NameText>{user.name}</NameText>
-              <UserInfoText>{user.party}기자</UserInfoText>
-              <UserInfoText>{user.position}소속</UserInfoText>
-            </ColDiv>
-          </div>
-          <Button>
-            <EditOutlinedIcon />
-            <p>편집</p>
-          </Button>
-        </ProfileContinaer>
-        <ItemList>
-          <Item onClick={() => handleMove("/myPicks")}>
-            <p>나의 Pick 모아보기</p>
-            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-          </Item>
-          <Item onClick={handleSignOut}>
-            <p>로그아웃</p>
-            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-          </Item>
-          <Item onClick={handleDeleteUser}>
-            <p>계정삭제</p>
-            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-          </Item>
-          <Item onClick={() => handleMove("/police/personal")}>
-            <p>개인정보처리방침</p>
-            <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-          </Item>
-        </ItemList>
-        </MainContent>
-        <BottomNav />
-      </Container>
-    </>
+    <Container>
+      <MainContent>
+      <Title>마이페이지</Title>
+      <ProfileContinaer>
+        <div style={{ display: "flex"}}>
+          <Avatar style={{ width: "84px", height: "84px" }} src={user.profile ? BASE_URL + user.profile : ""}/>
+          <ColDiv>
+            <NameText>{user.name}</NameText>
+            <UserInfoText>{user.party}기자</UserInfoText>
+            <UserInfoText>{user.position}소속</UserInfoText>
+          </ColDiv>
+        </div>
+        <Button onClick={handleOpenModal}>
+          <EditOutlinedIcon />
+          <p>편집</p>
+        </Button>
+      </ProfileContinaer>
+      <ItemList>
+        <Item onClick={() => handleMove("/myPicks")}>
+          <p>나의 Pick 모아보기</p>
+          <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+        </Item>
+        <Item onClick={handleSignOut}>
+          <p>로그아웃</p>
+          <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+        </Item>
+        <Item onClick={handleDeleteUser}>
+          <p>계정삭제</p>
+          <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+        </Item>
+        <Item onClick={() => handleMove("/police/personal")}>
+          <p>개인정보처리방침</p>
+          <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
+        </Item>
+      </ItemList>
+      </MainContent>
+      <BottomNav />
+      <ModalWrapper ref={modalRef}>
+        {/* TODO: 정보 수정은 됨, 근데 새로고침해야 적용댐 */}
+        <UserInfoEditor user={user} onCloseModal={handleCloseModal}/>
+      </ModalWrapper>
+    </Container>
   );
 };
 

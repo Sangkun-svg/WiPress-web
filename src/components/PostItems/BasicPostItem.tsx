@@ -1,52 +1,86 @@
 import Image from "next/image";
 import styled from "styled-components";
 import TouchAppOutlinedIcon from "@mui/icons-material/TouchAppOutlined";
+import { useRouter } from "next/router";
+import { usePathname } from 'next/navigation';
+import { supabase } from '@/utils/database';
+import IconButton from '@mui/material/IconButton';
+import { useState } from "react";
+
 interface Props {
+  id?:string;
   title?: string;
-  descriptoin?: string;
-  imageUrl?: string;
+  content?: string;
+  images?: Array<string>;
+  user_id: string;
+  Pick: Array<{user_id : string}>;
 }
 
-const BasicPostItem = ({ title, descriptoin, imageUrl }: Props) => {
-  {
-    /* TODO: Implement OnClick Post and Detail Page */
+const BasicPostItem = ({ user_id,id,title, content, images, Pick }: Props) => {
+  const isPicked = Pick.some((el: { user_id: string }) => el.user_id === user_id);
+  const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
+  const router = useRouter();
+  const pathname = usePathname();
+  // TODO: delete baseUrl and use env 
+  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
+   
+  const handleDetailPage = () => router.push(`/${pathname}/${id}`);
+  const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (isPickedStatus) {
+      // 이미 Pick된 경우, Pick을 취소합니다.
+      const { error } = await supabase
+        .from('Pick')
+        .delete()
+        .eq('user_id', user_id)
+        .eq('post_id', id);
+      if (!error) {
+        setIsPickedStatus(false);
+      }
+    } else {
+      // Pick을 추가합니다.
+      const { data, error } = await supabase
+        .from('Pick')
+        .insert([{ user_id: user_id, post_id: id }]);
+      if (!error && data) {
+        setIsPickedStatus(true);
+      }
+    }
   }
+  
   return (
-    <Container hasImage={!!imageUrl}>
-      <Image
-        alt="demo-image"
-        src={
-          "https://s3-alpha-sig.figma.com/img/a1a2/8c8f/523932a06ba32c0de03ed826ece1f567?Expires=1708905600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=XacIPz2B0km~EbRo2XwcBM3nLjGABAwxAo5kJx-Etq31zNLeCSUruZFaanUPYE2fetJqlHKzbyCjXw4GDxxdRmw~SqPaGJ4fLQsqiY0kv5jGjqlxT3gLH0Xi-EyRuUA9xshos5W7nXw4MZEzM5UkCWzshVy33cqMWxoNeIPbmzcJSjdJdRmK6Arb2RlJELPc24xQFIqOgE0dLEe8Q6XDKNnaFo5WCjVeVqbH~bW8DMCoXeAdPTrEpIFOgj5XhZByg4L5vPuYRENZGcvBkTo2af3OZdHToTsBE9ZCLswo7RpLMAjW9~t5oZ19uVyYX2cMv776VNEdmbMOB2c3UQKO3g__"
-        }
-        width={120}
-        height={90}
-        style={{ borderRadius: "6px" }}
-      />
+    <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 18px"}>
+      <div style={{display : "flex" , gap: 10}}>
+      {images &&
+        <Image
+          alt="thumbnail"
+          src={BASE_URL + images[0]}
+          width={120}
+          height={90}
+          style={{ borderRadius: "6px" }}
+        />
+      }
       <ColDiv>
-        <PostTitle>게시판 글 제목입니다</PostTitle>
-        <PostDescription>
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세
-        </PostDescription>
+        <PostTitle>{title}</PostTitle>
+        <PostDescription>{content}</PostDescription>
       </ColDiv>
-      {/* TODO: Turn ON/OFF icon according data */}
-      <TouchAppOutlinedIcon />
+      </div>
+      <IconButton onClick={handleClickPick}>
+        <TouchAppOutlinedIcon color={isPickedStatus ? "inherit" : "disabled"}/>
+      </IconButton>
     </Container>
   );
 };
 
 export default BasicPostItem;
 
-const Container = styled.div<{ hasImage?: boolean }>`
+const Container = styled.div<{padding: string}>`
   cursor: pointer;
   display: flex;
-  padding: 8px;
-  padding: ${(props) => (props.hasImage ? "8px" : "20px 18px")};
+  justify-content: space-between;
+  padding: ${(props) => props.padding};
   border-radius: 6px;
   background: #f7f7fa;
-  gap: 10px;
 `;
 
 const ColDiv = styled.div`

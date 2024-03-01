@@ -14,10 +14,6 @@ const NoticePage = () => {
         </RowDiv>
         {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
         </PostItemList>
       </Container>
     </Layout>

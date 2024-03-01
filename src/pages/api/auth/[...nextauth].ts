@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         };
         const { data: users, error } = await supabase
           .from("User")
-          .select("id,phoneNumber,password")
+          .select("id,phoneNumber,password,profile,type")
           .eq("phoneNumber", phoneNumber);
         const user = users?.[0];
         if (user) {
@@ -52,9 +52,11 @@ export const authOptions: NextAuthOptions = {
     },
     jwt: async ({ token, user }: { token: any; user: any }) => {
       if (user) {
+        console.log("JWT user ",user)
         token.user = {};
         token.user.id = user.id;
-        // TODO: add user profile image
+        token.user.profile = user.profile;
+        token.user.type = user.type;
       }
       return token;
     },

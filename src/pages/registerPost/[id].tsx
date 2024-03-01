@@ -1,115 +1,242 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent,useState } from "react";
 import styled from "styled-components";
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import IosShareOutlinedIcon from "@mui/icons-material/IosShareOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import NavBar from "@/components/NavBar";
 import ImageSwiper from "@/components/ImageSwiper";
-import BasicPostItem from "@/components/PostItems/BasicPostItem";
+import RegisterDetailPostItemt from "@/components/PostItems/RegisterDetailPostItemt";
+import CheckIcon from '@mui/icons-material/Check';
+import { authOptions } from "../../pages/api/auth/[...nextauth]"
+import { getServerSession } from "next-auth";
+import { supabase } from "@/utils/database";
+import { IconButton , Alert, Fade} from '@mui/material';
+import { useParams } from 'next/navigation'
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/ko';
+import BasicPostItem from '@/components/PostItems/BasicPostItem';
+import { MyPickItem } from "@/domain/Posts";
+import Image from "next/image";
 
-const RegisterPostDetail = () => {
+dayjs.extend(relativeTime);
+dayjs.locale('ko');
+
+
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  const { data: Post, error:PostError } = await supabase
+  .from('Post')
+  .select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`)
+  .eq("id", context.query.id);
+  // console.log({Post})
+
+  const { data: myPick, error:myPickEror } = await supabase
+  .from('Pick')
+  .select(`*, Post: post_id(id,title,content,image)`)
+  .eq("user_id", (session?.user as any).id);
+  // console.log({myPick})
+
+  const { data: PickRegistors, error:PickRegistorsError } = await supabase
+  .from('Post')
+  .select(`*, Pick ( * , User( name,profile,party,position ) )`)
+  .eq("id", context.query.id);
+  // console.log("PickRegistors : " , PickRegistors![0])
+  console.log("PickRegistors : " , PickRegistors![0].Pick)
+
+  return { props: { post : Post![0], user_id: (session?.user as any).id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
+}
+const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
+  // TODO: delete baseUrl and use env 
+  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
+  const isLike = post.Like.some((el: { user_id: string }) => el.user_id === user_id);
+  const isPicked = post.Pick.some((el: { user_id: string }) => el.user_id === user_id);
+  const params = useParams<{ id: string }>();
+  const [isAlertShown, setIsAlertShown] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
+  const [commentList, setCommentList] = useState<Array<any>>(post.Comment);
+  const [isLiked, setIsLiked] = useState<boolean>(isLike);
+  const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
+  const [hasFile] = useState<boolean>(Boolean(post.file));
+  const [likeCount, setLikeCount] = useState<number>(post.Like.length);
+  const handleClickShare = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+    }
+    setIsAlertShown(true)
+  }
+  const handleClickLike = async () => {
+    setIsLiked(prevState => !prevState);
+    if (likeCount) {
+      // 이미 Like된 경우, Like을 취소합니다.
+      const { error } = await supabase
+        .from('Like')
+        .delete()
+        .eq('user_id', user_id)
+        .eq('post_Id', params.id);
+      if (!error) {
+        setLikeCount(prevCount => prevCount - 1);
+      }
+    } else {
+      // Like을 추가합니다.
+      const { data, error } = await supabase
+        .from('Like')
+        .insert([{ user_id: user_id, post_id: params.id }]);
+      if (!error && data) {
+        setLikeCount(prevCount => prevCount + 1);
+      }
+    }
+  }
+  const handleUploadComment = async () => {
+    const { data, error } = await supabase
+    .from('Comment')
+    .insert([
+      { user_id: user_id,post_id: params.id,content: comment },
+    ])
+    .select();
+    if(error) console.error("COMMENT UPLOAD ERROR : ", error);
+    console.log(data);
+  }
   const handleComment = (event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
     setComment(event.target.value);
   };
+  // TODO<SERVER>: implement download file  
+  const handleDownloadFile = async () => {
+    if(post.file.length === 1){
+      const { data, error } = await supabase
+      .storage
+      .from('POST')
+      .download(`file/${post.id}/${post.file[0]}`);
+      if(error) console.error("FILE DOWNLOAD ERROR : ", error)
+      console.log(data)
+    }
+    if(post.file.length > 1){
+      const result = await Promise.all(
+        Object.values(post.file).map((eachfile:any) => {
+          const filePath = eachfile.split("/").at(-1);
+          return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
+        }),
+      );
+      console.log({result})
+      // return result.map((el) => (el.data as any).fullPath);
+    }
+  }
+  const calculateTimeAgo = (createdAt: string) => {
+    const now = dayjs();
+    const timeAgo = dayjs(createdAt);
+    return timeAgo.from(now);
+  }
+
   return (
     <Container>
+      {/* TODO:Should be change to antd message */}
+      {/* WARNING: error occur when using antd in this repo */}
+      {isAlertShown && 
+        <Fade 
+          in={isAlertShown}
+          timeout={{ enter: 1000, exit: 1000 }} 
+          addEndListener={() => {
+            setTimeout(() => {
+              setIsAlertShown(false);
+            }, 3000);
+          }}>
+          <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+            URL이 복사되었습니다.
+          </Alert>
+        </Fade>
+      }
       <NavBar title={"보도자료 게시글"} />
       <ContentContainer>
-        <Title>제목입니다</Title>
-        <SubTitle>부제목입니다</SubTitle>
-        <Description>
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라
-          만세동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세
-        </Description>
-        <ImageSwiper />
+        <Title>{post.title}</Title>
+        <SubTitle>{post.subtitle}</SubTitle>
+        <Description>{post.content}</Description>
+        {post.image && <ImageSwiper images={post.image}/>}
       </ContentContainer>
       <ActionContainer>
-        {/* TODO<SERVER>: isLike ? colorFIll : outline */}
+        {/* 좋아요 컨테이너 */}
         <LikeContainer>
-          <FavoriteBorder />
-          <FavoriteText>35</FavoriteText>
-          <IosShareOutlinedIcon style={{ marginLeft: "24px" }} />
+          <IconButton onClick={handleClickLike}>
+            {isLiked ? <FavoriteRoundedIcon/> :  <FavoriteBorder />}
+          </IconButton>
+          <FavoriteText>{likeCount}</FavoriteText>
+          {/* 공유 버튼 */}
+          <IconButton onClick={handleClickShare} style={{ marginLeft: "24px" }} >
+            <IosShareOutlinedIcon/>
+          </IconButton>
         </LikeContainer>
-        <FileButton>
-          <FolderOutlinedIcon />
-          <p>파일 열기</p>
+        {/* 파일 다운 버튼 */}
+        <FileButton onClick={handleDownloadFile} disabled={!hasFile}>
+          <FolderOutlinedIcon/>
+          <p>{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
         </FileButton>
         <input id="file" type="file" className="hidden" />
       </ActionContainer>
+      {/* 댓글 컨테이너 */}
       <CommentContainer>
-        <CommentCount>댓글 {6}</CommentCount>
-        {/* TODO: set input disabled according user status (isPicked) */}
+        <CommentCount>댓글 {commentList.length}</CommentCount>
         <CommentInput
           value={comment}
           onChange={handleComment}
           placeholder="ex. Pick한 기자만 댓글을 달 수 있습니다"
+          disabled={!Boolean(isPickedStatus)}
         />
+        <button type="button" style={{float: "inline-end", marginTop: "14px"}} onClick={handleUploadComment}>
+          댓글달기
+        </button>
       </CommentContainer>
       <CommentList>
-        {[
-          ["기자A · A소속", "댓글입니다 동해물과 백두산이 마르고", "5분"],
-          ["기자B · B소속", "댓글입니다 동해물과 백두산이 마르고", "1분"],
-        ].map((el, idx) => {
+        {commentList.map((el:any) => {
           return (
-            <CommentItem key={idx}>
-              <p>{el[0]}</p>
-              <p>{el[1]}</p>
-              <p>{el[2]}</p>
+            <CommentItem key={el.id}>
+              <p>기자{el.User.name} · {el.User.party}소속</p>
+              <p>{el.content}</p>
+              <p>{calculateTimeAgo(el.created_at)}</p>
             </CommentItem>
-          );
-        })}
+          )})}
       </CommentList>
+      {/*  */}
       <ReporterContainer>
         {/* TODO<Client>: should be abstrative */}
+        {/* TODO<Client>: Image size 84px 로 맞추기 */}
         <CommentCount>Pick한 기자</CommentCount>
-        {[1, 2, 3].map((el, idx) => {
-          return (
-            <ReporterItem key={idx}>
-              <div
-                className="demoImage"
-                style={{
-                  width: "84px",
-                  height: "84px",
-                  borderRadius: "6px",
-                  background: "#F2F2F7",
-                }}
-              />
-              <ReporterTypoWrapper>
-                <ReporterTypo color="#000" fontSize="14px">
-                  홍길동
-                </ReporterTypo>
-                <ReporterTypo color="#4A4A4A" fontSize="13px">
-                  기자
-                </ReporterTypo>
-                <ReporterTypo color="#4A4A4A" fontSize="13px">
-                  A소속
-                </ReporterTypo>
-                <ReporterTypo color="#848487" fontSize="13px">
-                  비고 한줄 긴글 동해물과 백두산이 마르고
-                </ReporterTypo>
-              </ReporterTypoWrapper>
-            </ReporterItem>
-          );
+        {pickRegistors.map((el: any) => {
+          console.log({user: el.User})
+          return <ReporterItem key={el.user_post_pick_id}>
+            {el.User.profile ? 
+              <Image alt="user_profile" src={BASE_URL + el.User.profile} width={84} height={84}/> :  
+              <div className="demoImage" style={{ width: "84px", height: "84px", borderRadius: "6px", background: "#F2F2F7", }} />
+            }
+            <ReporterTypoWrapper>
+              <ReporterTypo color="#000" fontSize="14px">
+                {el.User.name}
+              </ReporterTypo>
+              <ReporterTypo color="#4A4A4A" fontSize="13px">
+                {el.User.position}
+              </ReporterTypo>
+              <ReporterTypo color="#4A4A4A" fontSize="13px">
+                {el.User.party}
+              </ReporterTypo>
+            </ReporterTypoWrapper>
+          </ReporterItem>
         })}
       </ReporterContainer>
       <MyPickContainer>
         {/* TODO<Client>: 작성완료/미완료 Chip 만들기 */}
         <CommentCount>나의 Pick 현황</CommentCount>
-        {[1, 2, 3].map((el, idx) => {
-          {
-            /* TODO<Client>: should be abstrative */
-          }
-          return <BasicPostItem key={idx} imageUrl={"true"} />;
-        })}
+          {myPick.map((el:any) => {
+              return <MyPickItem key={el.user_post_pick_id} 
+                user_id={user_id}
+                id={el.Post.id}
+                title={el.Post.title}
+                content={el.Post.content}
+                images={el.Post.image}
+              />;
+          })}
       </MyPickContainer>
     </Container>
   );
@@ -162,6 +289,7 @@ const CommentInput = styled.input`
   background-color: #f7f7fa;
 `;
 const CommentList = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 34px;
@@ -219,7 +347,7 @@ const MyPickContainer = styled.div`
   margin: 28px 0;
 `;
 
-const FileButton = styled.button`
+const FileButton = styled(IconButton)`
   display: flex;
   width: 129px;
   padding: 8px 16px;

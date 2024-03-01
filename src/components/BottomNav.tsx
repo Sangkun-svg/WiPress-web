@@ -9,15 +9,17 @@ import AddBoxRoundedIcon from "@mui/icons-material/AddBoxRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const setCurrentTab = (pathname: string): number | undefined => {
-  if (pathname === "/") return 0;
   if (pathname === "/requestPost") return 1;
-  if (pathname === "/my" || pathname === "/myPicks") return 2;
+  else if (pathname === "/my" || pathname === "/myPicks") return 2;
+  else return 0;
 };
 
 const BottomNav = () => {
   const router = useRouter();
+  const session = useSession();
   const pathname = usePathname();
   const [value, setValue] = useState(0);
   const handleMoveBoard = () => router.push("/");
@@ -55,15 +57,18 @@ const BottomNav = () => {
           />
         }
       />
-      <CustomBottomNavigationAction
-        label="보도 작성"
-        onClick={handleMoveRequestPost}
-        icon={
-          <AddBoxRoundedIcon
-            style={{ color: value === 1 ? "#000" : "#AEAEB2" }}
-          />
-        }
-      />
+      {
+        (session.data?.user as any).type !== "reporter" && 
+        <CustomBottomNavigationAction
+          label="보도 작성"
+          onClick={handleMoveRequestPost}
+          icon={
+            <AddBoxRoundedIcon
+              style={{ color: value === 1 ? "#000" : "#AEAEB2" }}
+            />
+          }
+        />
+      }
       <CustomBottomNavigationAction
         label="마이페이지"
         onClick={handleMoveMy}

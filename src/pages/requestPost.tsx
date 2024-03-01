@@ -59,29 +59,29 @@ const RequestPost = (props: any) => {
     setImage(event.target.files);
   };
 
-  const uploadFile = async (file:any) => {
+  const uploadFile = async (file:any, post_id: string) => {
     if (file.length === 1) {
       const { data, error } = await supabase.storage
         .from("POST")
-        .upload("file/" + uuidv4(), file[0]);
+        .upload(`file/${post_id}/` + uuidv4(), file[0]);
       if (error) throw new Error(error.message);
       return [(data as any).fullPath]
     }
     if (file.length > 1) {
       const result = await Promise.all(
         Object.values(file).map((eachfile:any) => {
-          return supabase.storage.from("POST").upload("files/" + uuidv4(), eachfile);
+          return supabase.storage.from("POST").upload(`file/${post_id}/` + uuidv4(), eachfile);
         }),
       );
       return result.map((el) => (el.data as any).fullPath);
     }
   };
 
-  const uploadImageFile = async (file:any) => {
+  const uploadImageFile = async (file:any, post_id:string) => {
     if (file.length === 1) {
       const { data, error } = await supabase.storage
         .from("POST")
-        .upload("images/" + uuidv4(), file[0]);
+        .upload(`images/${post_id}/` + uuidv4(), file[0]);
       if (error) throw new Error(error.message);
       return [(data as any).fullPath]
     }
@@ -90,7 +90,7 @@ const RequestPost = (props: any) => {
         Object.values(file).map((image:any) => {
           return supabase.storage
             .from("POST")
-            .upload("images/" + uuidv4(), image);
+            .upload(`images/${post_id}/` + uuidv4(), image);
         }),
       );
       return result.map((el) => (el.data as any).fullPath)
@@ -101,8 +101,8 @@ const RequestPost = (props: any) => {
     try {
       const newPost = await axios.post("/api/post/requestPost", { data: {...data, user_id: props.user_id, post_type : "registerPost"} });
       if(newPost.status === 200){
-        const imagePath = await uploadImageFile(images);
-        const filePath = await uploadFile(files);
+        const imagePath = await uploadImageFile(images, newPost.data.newPost.id);
+        const filePath = await uploadFile(files, newPost.data.newPost.id);
         const { data, error } = await supabase
         .from('Post')
         .update({ image: imagePath ,file: filePath})

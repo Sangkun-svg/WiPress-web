@@ -8,37 +8,17 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 interface Props {
-  images?: Array<string>;
+  images: Array<string>;
 }
-const slideData = [
-  {
-    id: 1,
-    path: "https://s3-alpha-sig.figma.com/img/e4af/d2ee/4a8b2919c54bc15e5731eb5475e1c8fc?Expires=1709510400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=KrFRwhoxySxBcoNoTFoculsuXvHgYzKy9cXF~M4e96CUDFy1USYdtZPrhsTw1t4XQ9ejQxmNMHl2PN2BCAbp06F8mwu9LBN9PyPxS8kWPP6MbIo2bRq18DhZ3Rn6GG7Z41WSD0Btf8TQ2Q-jWdrCTbtWFnLFL04YqEEzJ5Lv4-rbLfm9LRAHCZbeFHT2k882n6b700P~Y7M3SzeF-EdykMdHLvH7o8tSqsvDydlt6eObvgm6oGRdOVbpafCOT43jHYooOynoKh3gvL2dCmzT78ggA00Q-F6NOsX5OGVgPR1HQbg5jOfV4nQ1DihDVH8dE2cYf20fcBuYng1im8t1zQ__",
-  },
-  {
-    id: 2,
-    path: "https://s3-alpha-sig.figma.com/img/e4af/d2ee/4a8b2919c54bc15e5731eb5475e1c8fc?Expires=1709510400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=KrFRwhoxySxBcoNoTFoculsuXvHgYzKy9cXF~M4e96CUDFy1USYdtZPrhsTw1t4XQ9ejQxmNMHl2PN2BCAbp06F8mwu9LBN9PyPxS8kWPP6MbIo2bRq18DhZ3Rn6GG7Z41WSD0Btf8TQ2Q-jWdrCTbtWFnLFL04YqEEzJ5Lv4-rbLfm9LRAHCZbeFHT2k882n6b700P~Y7M3SzeF-EdykMdHLvH7o8tSqsvDydlt6eObvgm6oGRdOVbpafCOT43jHYooOynoKh3gvL2dCmzT78ggA00Q-F6NOsX5OGVgPR1HQbg5jOfV4nQ1DihDVH8dE2cYf20fcBuYng1im8t1zQ__",
-  },
-  {
-    id: 3,
-    path: "https://s3-alpha-sig.figma.com/img/e4af/d2ee/4a8b2919c54bc15e5731eb5475e1c8fc?Expires=1709510400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=KrFRwhoxySxBcoNoTFoculsuXvHgYzKy9cXF~M4e96CUDFy1USYdtZPrhsTw1t4XQ9ejQxmNMHl2PN2BCAbp06F8mwu9LBN9PyPxS8kWPP6MbIo2bRq18DhZ3Rn6GG7Z41WSD0Btf8TQ2Q-jWdrCTbtWFnLFL04YqEEzJ5Lv4-rbLfm9LRAHCZbeFHT2k882n6b700P~Y7M3SzeF-EdykMdHLvH7o8tSqsvDydlt6eObvgm6oGRdOVbpafCOT43jHYooOynoKh3gvL2dCmzT78ggA00Q-F6NOsX5OGVgPR1HQbg5jOfV4nQ1DihDVH8dE2cYf20fcBuYng1im8t1zQ__",
-  },
-  {
-    id: 4,
-    path: "https://s3-alpha-sig.figma.com/img/e4af/d2ee/4a8b2919c54bc15e5731eb5475e1c8fc?Expires=1709510400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=KrFRwhoxySxBcoNoTFoculsuXvHgYzKy9cXF~M4e96CUDFy1USYdtZPrhsTw1t4XQ9ejQxmNMHl2PN2BCAbp06F8mwu9LBN9PyPxS8kWPP6MbIo2bRq18DhZ3Rn6GG7Z41WSD0Btf8TQ2Q-jWdrCTbtWFnLFL04YqEEzJ5Lv4-rbLfm9LRAHCZbeFHT2k882n6b700P~Y7M3SzeF-EdykMdHLvH7o8tSqsvDydlt6eObvgm6oGRdOVbpafCOT43jHYooOynoKh3gvL2dCmzT78ggA00Q-F6NOsX5OGVgPR1HQbg5jOfV4nQ1DihDVH8dE2cYf20fcBuYng1im8t1zQ__",
-  },
-  {
-    id: 5,
-    path: "https://s3-alpha-sig.figma.com/img/e4af/d2ee/4a8b2919c54bc15e5731eb5475e1c8fc?Expires=1709510400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=KrFRwhoxySxBcoNoTFoculsuXvHgYzKy9cXF~M4e96CUDFy1USYdtZPrhsTw1t4XQ9ejQxmNMHl2PN2BCAbp06F8mwu9LBN9PyPxS8kWPP6MbIo2bRq18DhZ3Rn6GG7Z41WSD0Btf8TQ2Q-jWdrCTbtWFnLFL04YqEEzJ5Lv4-rbLfm9LRAHCZbeFHT2k882n6b700P~Y7M3SzeF-EdykMdHLvH7o8tSqsvDydlt6eObvgm6oGRdOVbpafCOT43jHYooOynoKh3gvL2dCmzT78ggA00Q-F6NOsX5OGVgPR1HQbg5jOfV4nQ1DihDVH8dE2cYf20fcBuYng1im8t1zQ__",
-  },
-];
 
 const ImageSwiper = ({ images }: Props) => {
   const [currentIdx, setCurrentIdx] = useState(0);
+  // TODO: delete baseUrl and use env 
+  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
   const handleSlideChange = (currentIndex: number) => {
     setCurrentIdx(currentIndex);
   };
-
+  // TODO: 이미지 사이즈 fix
   return (
     <SwiperContainer>
       <Swiper
@@ -46,22 +26,20 @@ const ImageSwiper = ({ images }: Props) => {
           handleSlideChange(swiper.activeIndex);
         }}
       >
-        {/* TODO: change slideData -> images */}
-        {slideData.map((slide) => (
-          <SwiperSlide key={slide.id}>
+        {images.map((imagePath,idx) => (
+          <SwiperSlide key={idx}>
             <Image
               alt="demoImage"
-              src={slide.path}
+              src={BASE_URL + imagePath}
               width={350}
               height={253}
-              style={{ borderRadius: "6px" }}
+              priority={true}
             />
           </SwiperSlide>
         ))}
       </Swiper>
       <DotList>
-        {/* TODO: change slideData -> images */}
-        {slideData.map((_, idx) => {
+        {images.map((_, idx) => {
           const isCurrent = idx === currentIdx;
           return (
             <FiberManualRecordIcon

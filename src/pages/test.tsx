@@ -1,52 +1,107 @@
-import React , {useState} from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import Image from 'next/image';
+import styled from "styled-components";
+import { useRef } from "react";
+import ModalWrapper from "../components/Modal/Modal";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { supabase } from "@/utils/database";
 
-export default function Profile() {
-  const supabase = createClientComponentClient();
-  const [images, setImages] = useState<Array<string> | string | null>();
-  const [imagePath, setImagePath] =useState<Array<string> | null>();
-
-  const uploadImageFile = async (event: React.ChangeEvent<any>) => {
-    const file = event.target.files;
-    if(file.length === 0) return;
-    if(file.length === 1) {
-      console.warn("Selected Just One File!")
-      console.log("file[0]" ,file[0])
-      const { data, error } = await supabase.storage
-      .from("POST")
-      .upload("images/"+ uuidv4(), file[0]);
-
-      setImagePath([(data as any).fullPath]);
-    };
-    if(file.length > 1) {
-      console.warn("Selected many files!")
-      const result = await Promise.all(
-        Object.values(file).map((image:any,idx:number) => {
-          return supabase.storage
-          .from("POST")
-          .upload("images/"+ uuidv4(), image);
-        })
-      );
-      setImagePath(result.map(el => (el.data as any).fullPath))
-    }
+const UserInfoEditor = ({ user }: any) => {
+  const modalRef = useRef(null);
+  const handleOpenModal = () => {
+    (modalRef.current as any).showModal();
   };
-
+  const handleCloseModal = () => {
+    (modalRef.current as any).close();
+  };
+  const { register, handleSubmit } = useForm();
+  const onSubmit: SubmitHandler<any> = async (updateData: any) => {
+    const { data, error } = await supabase
+    .from('User')
+    .update({ name: updateData.name , position: updateData.position , party: updateData.party})
+    .eq('id', user.id)
+    .select();
+    if(error) throw new Error(error.message)
+    console.log(data)
+    handleCloseModal();
+  };
   return (
-    <div>
-      <h1>Upload Profile Photo</h1>
-      <input type="file" multiple accept='image/*' onChange={uploadImageFile} />
-      {imagePath && imagePath.map((el:string) => {
-        return <Image 
-        alt='test'
-        src={"https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/" + el}
-        width={300}
-        height={300}
-      />
-    })
-
-      }
-    </div>
+    <Container>
+      <button onClick={handleOpenModal}>open modal</button>
+      <ModalWrapper ref={modalRef}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          <FormElement>
+            <Label>이름</Label>
+            <Input {...register("name")} />
+          </FormElement>
+          <FormElement>
+            <Label>직책</Label>
+            <Input placeholder="ex. 00직책" {...register("position")} />
+          </FormElement>
+          <FormElement>
+            <Label>소속</Label>
+            <Input placeholder="ex. 00소속" {...register("party")} />
+          </FormElement>
+          <Button type="submit">
+            <p>저장</p>
+          </Button>
+        </Form>
+      </ModalWrapper>
+    </Container>
   );
-}
+};
+
+export default UserInfoEditor;
+
+const Container = styled.div``;
+const Form = styled.form`
+  width: 100%;
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+const FormElement = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+`;
+
+const Label = styled.label`
+  width: 100%;
+  color: #000;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  max-height: 50px;
+  border-radius: 6px;
+  padding: 18px 16px;
+  background-color: #f7f7fa;
+`;
+
+const Button = styled.button`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 50px;
+  padding: 18px 12px;
+  border-radius: 6px;
+  background-color: #000;
+  p {
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 100%;
+    letter-spacing: 0.14px;
+  }
+`;

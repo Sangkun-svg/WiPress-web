@@ -2,8 +2,28 @@ import Layout from "../../components/Layout";
 import BasicPostItem from "../../components/PostItems/BasicPostItem";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
+import { authOptions } from "../../pages/api/auth/[...nextauth]"
+import { getServerSession } from "next-auth";
+import { supabase } from "@/utils/database";
 
-const RegisterPost = () => {
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  let { data: Post, error } = await supabase
+  .from('Post')
+  .select(`
+    id,title,subtitle,content,image,
+    Pick (
+      user_id
+    )
+  `)
+  .eq("type", "registerPost");
+  return { props: { post : Post, user_id: (session?.user as any).id } } 
+}
+
+const RegisterPost = ({post, user_id} : any) => {
   return (
     <Layout>
       <Container>
@@ -11,16 +31,12 @@ const RegisterPost = () => {
           <Title>보도요청 게시판</Title>
           <SearchIcon />
         </RowDiv>
-        {/* TODO: Implement OnClick event and search Page */}
+        {/* TODO: Implement Search Modal */}
         <PostItemList>
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
-          <BasicPostItem />
+          {post.map((el:any) => {
+              return <BasicPostItem key={el.id} user_id={user_id} id={el.id} title={el.title} content={el.content} images={el.image} Pick={el.Pick} />
+          })}
         </PostItemList>
-        {/* TODO: implement Comments */}
-        {/* TODO: implement PickGroups */}
-        {/* TODO: implement MyPick Posts */}
       </Container>
     </Layout>
   );
