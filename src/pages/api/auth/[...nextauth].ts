@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: 'qwer1234', // TODO: should be change
+  secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET_KEY!,
 };
 
 export default NextAuth(authOptions);
