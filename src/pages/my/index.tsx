@@ -5,12 +5,10 @@ import BottomNav from "@/components/BottomNav";
 import { useRouter } from "next/router";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { signOut } from "next-auth/react";
-import { authOptions } from "../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { useRef } from "react";
-import ModalWrapper from '../components/Modal/Modal';
-import UserInfoEditor from "@/components/User/UserInfoEditor";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
@@ -43,8 +41,6 @@ const MyPage = ({user}: any) => {
   const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
 
 
-  const handleOpenModal = () => (modalRef.current as any).showModal();
-  const handleCloseModal = () => (modalRef.current as any).close();
   const handleMove = (path: string) => router.push(path);
   const handleSignOut = async () => signOut({ callbackUrl: `/` })
   const handleDeleteUser = async () => {
@@ -56,7 +52,6 @@ const MyPage = ({user}: any) => {
     router.push("/")
   }
 
-console.log({user})
   return (
     <Container>
       <MainContent>
@@ -70,7 +65,7 @@ console.log({user})
             <UserInfoText>{user.position}소속</UserInfoText>
           </ColDiv>
         </div>
-        <Button onClick={handleOpenModal}>
+        <Button onClick={() => handleMove("/my/update")}>
           <EditOutlinedIcon />
           <p>편집</p>
         </Button>
@@ -95,10 +90,6 @@ console.log({user})
       </ItemList>
       </MainContent>
       <BottomNav />
-      <ModalWrapper ref={modalRef}>
-        {/* TODO: 정보 수정은 됨, 근데 새로고침해야 적용댐 */}
-        <UserInfoEditor user={user} onCloseModal={handleCloseModal}/>
-      </ModalWrapper>
     </Container>
   );
 };

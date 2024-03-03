@@ -58,7 +58,7 @@ const BottomNav = () => {
         }
       />
       {
-        (session.data?.user as any).type !== "reporter" && 
+        (session.data?.user as any)?.type !== "reporter" && 
         <CustomBottomNavigationAction
           label="보도 작성"
           onClick={handleMoveRequestPost}

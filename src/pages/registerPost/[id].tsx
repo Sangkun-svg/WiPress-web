@@ -6,7 +6,6 @@ import IosShareOutlinedIcon from "@mui/icons-material/IosShareOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import NavBar from "@/components/NavBar";
 import ImageSwiper from "@/components/ImageSwiper";
-import RegisterDetailPostItemt from "@/components/PostItems/RegisterDetailPostItemt";
 import CheckIcon from '@mui/icons-material/Check';
 import { authOptions } from "../../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
@@ -16,7 +15,6 @@ import { useParams } from 'next/navigation'
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/ko';
-import BasicPostItem from '@/components/PostItems/BasicPostItem';
 import { MyPickItem } from "@/domain/Posts";
 import Image from "next/image";
 
@@ -33,20 +31,16 @@ export const getServerSideProps = async (context:any) => {
   .from('Post')
   .select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`)
   .eq("id", context.query.id);
-  // console.log({Post})
 
   const { data: myPick, error:myPickEror } = await supabase
   .from('Pick')
-  .select(`*, Post: post_id(id,title,content,image)`)
+  .select(`*, Post: post_id(id,title,content,image,picks)`)
   .eq("user_id", (session?.user as any).id);
-  // console.log({myPick})
 
   const { data: PickRegistors, error:PickRegistorsError } = await supabase
   .from('Post')
   .select(`*, Pick ( * , User( name,profile,party,position ) )`)
   .eq("id", context.query.id);
-  // console.log("PickRegistors : " , PickRegistors![0])
-  console.log("PickRegistors : " , PickRegistors![0].Pick)
 
   return { props: { post : Post![0], user_id: (session?.user as any).id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
 }
@@ -62,7 +56,8 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   const [isLiked, setIsLiked] = useState<boolean>(isLike);
   const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
   const [hasFile] = useState<boolean>(Boolean(post.file));
-  const [likeCount, setLikeCount] = useState<number>(post.Like.length);
+  // TODO: post.Like.length -> post.likes
+  const [likeCount, setLikeCount] = useState<number>(post.likes);
   const handleClickShare = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
@@ -71,26 +66,25 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   }
   const handleClickLike = async () => {
     setIsLiked(prevState => !prevState);
-    if (likeCount) {
-      // 이미 Like된 경우, Like을 취소합니다.
-      const { error } = await supabase
-        .from('Like')
-        .delete()
-        .eq('user_id', user_id)
-        .eq('post_Id', params.id);
-      if (!error) {
-        setLikeCount(prevCount => prevCount - 1);
+    const updatedLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
+    try {
+      if(isLiked){
+        await Promise.all([
+          supabase.from('Like').delete().eq('user_id', user_id).eq('post_id', params.id),
+          supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
+        ]);
+      }else {
+        await Promise.all([
+          supabase.from('Like').upsert({ user_id: user_id, post_id: params.id }),
+          supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
+        ]);
       }
-    } else {
-      // Like을 추가합니다.
-      const { data, error } = await supabase
-        .from('Like')
-        .insert([{ user_id: user_id, post_id: params.id }]);
-      if (!error && data) {
-        setLikeCount(prevCount => prevCount + 1);
-      }
+      setLikeCount(updatedLikeCount);
+    } catch (error) {
+      console.error('좋아요 처리 중 오류가 발생했습니다:', error);
     }
   }
+
   const handleUploadComment = async () => {
     const { data, error } = await supabase
     .from('Comment')
@@ -230,6 +224,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         <CommentCount>나의 Pick 현황</CommentCount>
           {myPick.map((el:any) => {
               return <MyPickItem key={el.user_post_pick_id} 
+                picks={el.Post.picks}
                 user_id={user_id}
                 id={el.Post.id}
                 title={el.Post.title}

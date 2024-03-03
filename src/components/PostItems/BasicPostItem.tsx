@@ -13,59 +13,57 @@ interface Props {
   content?: string;
   images?: Array<string>;
   user_id: string;
+  picks: number;
   Pick: Array<{user_id : string}>;
 }
 
-const BasicPostItem = ({ user_id,id,title, content, images, Pick }: Props) => {
+const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props) => {
   const isPicked = Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
   const router = useRouter();
-  const pathname = usePathname();
   // TODO: delete baseUrl and use env 
   const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
    
-  const handleDetailPage = () => router.push(`/${pathname}/${id}`);
+  const handleDetailPage = () => router.push(`/registerPost/${id}`);
   const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (isPickedStatus) {
-      // 이미 Pick된 경우, Pick을 취소합니다.
-      const { error } = await supabase
-        .from('Pick')
-        .delete()
-        .eq('user_id', user_id)
-        .eq('post_id', id);
-      if (!error) {
-        setIsPickedStatus(false);
+    setIsPickedStatus(prevState => !prevState);
+    try {
+      if(isPickedStatus){
+        await Promise.all([
+          supabase.from('Pick').delete().eq('user_id', user_id).eq('post_id', id),
+          supabase.from('Post').update({ picks: picks - 1 }).eq('id', id)
+        ]);
+      }else {
+        await Promise.all([
+          supabase.from('Pick').insert([{ user_id: user_id, post_id: id }]),
+          supabase.from('Post').update({ picks: picks + 1 }).eq('id', id)
+        ]);
       }
-    } else {
-      // Pick을 추가합니다.
-      const { data, error } = await supabase
-        .from('Pick')
-        .insert([{ user_id: user_id, post_id: id }]);
-      if (!error && data) {
-        setIsPickedStatus(true);
-      }
+    } catch (error) {
+      console.error('Pick 처리 중 오류가 발생했습니다:', error);
     }
   }
   
   return (
-    <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 18px"}>
+    <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 8px 18px 20px"}>
       <div style={{display : "flex" , gap: 10}}>
-      {images &&
-        <Image
-          alt="thumbnail"
-          src={BASE_URL + images[0]}
-          width={120}
-          height={90}
-          style={{ borderRadius: "6px" }}
-        />
-      }
-      <ColDiv>
-        <PostTitle>{title}</PostTitle>
-        <PostDescription>{content}</PostDescription>
-      </ColDiv>
+        {/* TODO: All Image component set fix sizes */}
+        {images &&
+          <Image
+            alt="thumbnail"
+            src={BASE_URL + images[0]}
+            width={120}
+            height={90}
+            style={{ borderRadius: "6px" }}
+          />
+        }
+        <ColDiv>
+          <PostTitle>{title}</PostTitle>
+          <PostDescription>{content}</PostDescription>
+        </ColDiv>
       </div>
-      <IconButton onClick={handleClickPick}>
+      <IconButton onClick={handleClickPick} sx={{width: "40px", height: "44.5px"}}>
         <TouchAppOutlinedIcon color={isPickedStatus ? "inherit" : "disabled"}/>
       </IconButton>
     </Container>
@@ -78,6 +76,7 @@ const Container = styled.div<{padding: string}>`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: ${(props) => props.padding};
   border-radius: 6px;
   background: #f7f7fa;

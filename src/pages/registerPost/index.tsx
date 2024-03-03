@@ -11,15 +11,12 @@ export const getServerSideProps = async (context:any) => {
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
 
-  let { data: Post, error } = await supabase
+  const { data: Post, error } = await supabase
   .from('Post')
   .select(`
-    id,title,subtitle,content,image,
-    Pick (
-      user_id
-    )
-  `)
+    * ,Pick (user_id)`)
   .eq("type", "registerPost");
+
   return { props: { post : Post, user_id: (session?.user as any).id } } 
 }
 
@@ -33,8 +30,8 @@ const RegisterPost = ({post, user_id} : any) => {
         </RowDiv>
         {/* TODO: Implement Search Modal */}
         <PostItemList>
-          {post.map((el:any) => {
-              return <BasicPostItem key={el.id} user_id={user_id} id={el.id} title={el.title} content={el.content} images={el.image} Pick={el.Pick} />
+          {post?.map((el:any) => {
+              return <BasicPostItem key={el.id} user_id={user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
           })}
         </PostItemList>
       </Container>

@@ -2,7 +2,6 @@ import Image from "next/image";
 import styled from "styled-components";
 import TouchAppOutlinedIcon from "@mui/icons-material/TouchAppOutlined";
 import { useRouter } from "next/router";
-import { usePathname } from 'next/navigation';
 import { supabase } from '@/utils/database';
 import IconButton from '@mui/material/IconButton';
 import { useState } from "react";
@@ -12,36 +11,36 @@ interface Props {
   title?: string;
   content?: string;
   images?: Array<string>;
+  picks:number;
   user_id: string;
 }
 
-const MyPickItem = ({ user_id,id,title, content, images }: Props) => {
+const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
+  console.log("MyPickItem Picks : ", picks)
     const [isPickedStatus, setIsPickedStatus] = useState<boolean>(true)
     const router = useRouter();
-    const pathname = usePathname();
     // TODO: delete baseUrl and use env 
     const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
-    const handleDetailPage = () => router.push(`/${pathname}/${id}`);
+    const handleDetailPage = () => router.push(`/registerPost/${id}`);
     const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
-      if (isPickedStatus) {
-        // 이미 Pick된 경우, Pick을 취소합니다.
-        const { error } = await supabase
-          .from('Pick')
-          .delete()
-          .eq('user_id', user_id)
-          .eq('post_id', id);
-        if (!error) {
-          setIsPickedStatus(false);
+      setIsPickedStatus(prevState => !prevState);
+      try {
+        if(isPickedStatus){
+          console.log({picks}, "picks - 1 :", picks - 1);
+          await Promise.all([
+            supabase.from('Pick').delete().eq('user_id', user_id).eq('post_id', id),
+            supabase.from('Post').update({ picks: picks - 1 === 0 ? 0 : picks - 1 }).eq('id', id)
+          ]);
+        }else {
+          console.log({picks}, "picks + 1 :", picks + 1);
+          await Promise.all([
+            supabase.from('Pick').insert([{ user_id: user_id, post_id: id }]),
+            supabase.from('Post').update({ picks: picks + 1 }).eq('id', id)
+          ]);
         }
-      } else {
-        // Pick을 추가합니다.
-        const { data, error } = await supabase
-          .from('Pick')
-          .insert([{ user_id: user_id, post_id: id }]);
-        if (!error && data) {
-          setIsPickedStatus(true);
-        }
+      } catch (error) {
+        console.error('Pick 처리 중 오류가 발생했습니다:', error);
       }
     }
   
