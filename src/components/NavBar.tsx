@@ -14,7 +14,7 @@ const NavBar = ({ title }: Props) => {
   return (
     <AppBar
       position="sticky"
-      style={{ background: "#fff", minHeight: "44px", boxShadow: "none" }}
+      style={{ background: "#fff", minHeight: "44px", boxShadow: "none", zIndex: 998 }}
     >
       <Toolbar style={{ gap: 12 }}>
         <IconButton edge="start" aria-label="menu" onClick={handleClick}>
