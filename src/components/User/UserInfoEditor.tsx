@@ -6,9 +6,8 @@ import { useState, useRef } from "react";
 
 const UserInfoEditor = ({ user, onCloseModal }: any) => {
   const { register, handleSubmit } = useForm();
-  // TODO: replace using env
-  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
   const profileRef = useRef<HTMLInputElement>(null);
+  const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!
   const [profile, setProfile] = useState<any>();
   const [profilePreview, setProfilePreview] = useState<any>(BASE_URL + user.profile);
 

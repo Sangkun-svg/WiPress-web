@@ -37,9 +37,7 @@ export const getServerSideProps = async (context:any) => {
 const MyPage = ({user}: any) => {
   const router = useRouter();
   const modalRef = useRef(null);
-  // TODO: replace using env
-  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
-
+  const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!
 
   const handleMove = (path: string) => router.push(path);
   const handleSignOut = async () => signOut({ callbackUrl: `/` })

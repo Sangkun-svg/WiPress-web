@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Image from "next/image";
 import styled from "styled-components";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import CustomImage from "./CustomImage";
 
 interface Props {
   images: Array<string>;
@@ -13,8 +13,6 @@ interface Props {
 
 const ImageSwiper = ({ images }: Props) => {
   const [currentIdx, setCurrentIdx] = useState(0);
-  // TODO: delete baseUrl and use env 
-  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
   const handleSlideChange = (currentIndex: number) => {
     setCurrentIdx(currentIndex);
   };
@@ -28,9 +26,9 @@ const ImageSwiper = ({ images }: Props) => {
       >
         {images.map((imagePath,idx) => (
           <SwiperSlide key={idx}>
-            <Image
+            <CustomImage
               alt="demoImage"
-              src={BASE_URL + imagePath}
+              src={imagePath}
               width={350}
               height={253}
               priority={true}

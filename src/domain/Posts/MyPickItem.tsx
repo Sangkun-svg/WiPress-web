@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { supabase } from '@/utils/database';
 import IconButton from '@mui/material/IconButton';
 import { useState } from "react";
+import { CustomImage } from "@/components";
 
 interface Props {
   id?:string;
@@ -16,11 +17,8 @@ interface Props {
 }
 
 const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
-  console.log("MyPickItem Picks : ", picks)
     const [isPickedStatus, setIsPickedStatus] = useState<boolean>(true)
     const router = useRouter();
-    // TODO: delete baseUrl and use env 
-    const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
     const handleDetailPage = () => router.push(`/registerPost/${id}`);
     const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -48,9 +46,9 @@ const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
         <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 18px"}>
           <div style={{display : "flex" , gap: 10}}>
           {images &&
-            <Image
+            <CustomImage
               alt="thumbnail"
-              src={BASE_URL + images[0]}
+              src={images[0]}
               width={120}
               height={90}
               style={{ borderRadius: "6px" }}

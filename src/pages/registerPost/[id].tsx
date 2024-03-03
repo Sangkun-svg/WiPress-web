@@ -4,8 +4,6 @@ import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import IosShareOutlinedIcon from "@mui/icons-material/IosShareOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
-import NavBar from "@/components/NavBar";
-import ImageSwiper from "@/components/ImageSwiper";
 import CheckIcon from '@mui/icons-material/Check';
 import { authOptions } from "../../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
@@ -16,10 +14,11 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/ko';
 import { MyPickItem } from "@/domain/Posts";
-import Image from "next/image";
+import {CustomImage, NavBar, ImageSwiper} from "@/components";
 
 dayjs.extend(relativeTime);
 dayjs.locale('ko');
+
 
 
 export const getServerSideProps = async (context:any) => { 
@@ -27,37 +26,24 @@ export const getServerSideProps = async (context:any) => {
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
 
-  const { data: Post, error:PostError } = await supabase
-  .from('Post')
-  .select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`)
-  .eq("id", context.query.id);
-
-  const { data: myPick, error:myPickEror } = await supabase
-  .from('Pick')
-  .select(`*, Post: post_id(id,title,content,image,picks)`)
-  .eq("user_id", (session?.user as any).id);
-
-  const { data: PickRegistors, error:PickRegistorsError } = await supabase
-  .from('Post')
-  .select(`*, Pick ( * , User( name,profile,party,position ) )`)
-  .eq("id", context.query.id);
+  const { data: Post, error:PostError } = await supabase.from('Post').select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`).eq("id", context.query.id);
+  const { data: myPick, error:myPickEror } = await supabase.from('Pick').select(`*, Post: post_id(id,title,content,image,picks)`).eq("user_id", (session?.user as any).id);
+  const { data: PickRegistors, error:PickRegistorsError } = await supabase.from('Post').select(`*, Pick ( * , User( name,profile,party,position ) )`).eq("id", context.query.id);
 
   return { props: { post : Post![0], user_id: (session?.user as any).id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
 }
 const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
-  // TODO: delete baseUrl and use env 
-  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
+  const params = useParams<{ id: string }>();
   const isLike = post.Like.some((el: { user_id: string }) => el.user_id === user_id);
   const isPicked = post.Pick.some((el: { user_id: string }) => el.user_id === user_id);
-  const params = useParams<{ id: string }>();
   const [isAlertShown, setIsAlertShown] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
   const [commentList, setCommentList] = useState<Array<any>>(post.Comment);
   const [isLiked, setIsLiked] = useState<boolean>(isLike);
-  const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
+  const [isPickedStatus] = useState<boolean>(isPicked)
   const [hasFile] = useState<boolean>(Boolean(post.file));
-  // TODO: post.Like.length -> post.likes
   const [likeCount, setLikeCount] = useState<number>(post.likes);
+  
   const handleClickShare = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
@@ -89,11 +75,12 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     const { data, error } = await supabase
     .from('Comment')
     .insert([
-      { user_id: user_id,post_id: params.id,content: comment },
+      { user_id: user_id ,post_id: params.id,content: comment },
     ])
-    .select();
+    .select("*,User(name,party)");
     if(error) console.error("COMMENT UPLOAD ERROR : ", error);
-    console.log(data);
+    setCommentList(prev => [...prev, data![0]])
+    setComment(prev => "")
   }
   const handleComment = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -152,25 +139,21 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         {post.image && <ImageSwiper images={post.image}/>}
       </ContentContainer>
       <ActionContainer>
-        {/* 좋아요 컨테이너 */}
         <LikeContainer>
           <IconButton onClick={handleClickLike}>
             {isLiked ? <FavoriteRoundedIcon/> :  <FavoriteBorder />}
           </IconButton>
           <FavoriteText>{likeCount}</FavoriteText>
-          {/* 공유 버튼 */}
           <IconButton onClick={handleClickShare} style={{ marginLeft: "24px" }} >
             <IosShareOutlinedIcon/>
           </IconButton>
         </LikeContainer>
-        {/* 파일 다운 버튼 */}
         <FileButton onClick={handleDownloadFile} disabled={!hasFile}>
           <FolderOutlinedIcon/>
           <p>{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
         </FileButton>
         <input id="file" type="file" className="hidden" />
       </ActionContainer>
-      {/* 댓글 컨테이너 */}
       <CommentContainer>
         <CommentCount>댓글 {commentList.length}</CommentCount>
         <CommentInput
@@ -193,16 +176,13 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
             </CommentItem>
           )})}
       </CommentList>
-      {/*  */}
       <ReporterContainer>
-        {/* TODO<Client>: should be abstrative */}
         {/* TODO<Client>: Image size 84px 로 맞추기 */}
         <CommentCount>Pick한 기자</CommentCount>
         {pickRegistors.map((el: any) => {
-          console.log({user: el.User})
           return <ReporterItem key={el.user_post_pick_id}>
             {el.User.profile ? 
-              <Image alt="user_profile" src={BASE_URL + el.User.profile} width={84} height={84}/> :  
+              <CustomImage alt="user_profile" src={el.User.profile} width={84} height={84}/> :  
               <div className="demoImage" style={{ width: "84px", height: "84px", borderRadius: "6px", background: "#F2F2F7", }} />
             }
             <ReporterTypoWrapper>

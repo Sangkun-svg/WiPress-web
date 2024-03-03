@@ -1,11 +1,10 @@
-import Image from "next/image";
 import styled from "styled-components";
 import TouchAppOutlinedIcon from "@mui/icons-material/TouchAppOutlined";
 import { useRouter } from "next/router";
-import { usePathname } from 'next/navigation';
 import { supabase } from '@/utils/database';
 import IconButton from '@mui/material/IconButton';
 import { useState } from "react";
+import CustomImage from "../CustomImage";
 
 interface Props {
   id?:string;
@@ -21,8 +20,6 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
   const isPicked = Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
   const router = useRouter();
-  // TODO: delete baseUrl and use env 
-  const BASE_URL = "https://jjgkztugfylksrcdbaaq.supabase.co/storage/v1/object/public/"
    
   const handleDetailPage = () => router.push(`/registerPost/${id}`);
   const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,9 +47,9 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
       <div style={{display : "flex" , gap: 10}}>
         {/* TODO: All Image component set fix sizes */}
         {images &&
-          <Image
+          <CustomImage
             alt="thumbnail"
-            src={BASE_URL + images[0]}
+            src={images[0]}
             width={120}
             height={90}
             style={{ borderRadius: "6px" }}
