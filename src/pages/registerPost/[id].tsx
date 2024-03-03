@@ -10,14 +10,8 @@ import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { IconButton , Alert, Fade} from '@mui/material';
 import { useParams } from 'next/navigation'
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/ko';
-import { MyPickItem } from "@/domain/Posts";
-import {CustomImage, NavBar, ImageSwiper} from "@/components";
-
-dayjs.extend(relativeTime);
-dayjs.locale('ko');
+import { CommentList, MyPickItem } from "@/domain/Posts";
+import { CustomImage, NavBar, ImageSwiper} from "@/components";
 
 
 
@@ -34,6 +28,7 @@ export const getServerSideProps = async (context:any) => {
 }
 const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   const params = useParams<{ id: string }>();
+  const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!;
   const isLike = post.Like.some((el: { user_id: string }) => el.user_id === user_id);
   const isPicked = post.Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isAlertShown, setIsAlertShown] = useState<boolean>(false);
@@ -72,15 +67,16 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   }
 
   const handleUploadComment = async () => {
-    const { data, error } = await supabase
-    .from('Comment')
-    .insert([
-      { user_id: user_id ,post_id: params.id,content: comment },
-    ])
-    .select("*,User(name,party)");
-    if(error) console.error("COMMENT UPLOAD ERROR : ", error);
-    setCommentList(prev => [...prev, data![0]])
-    setComment(prev => "")
+    try {
+      const { data:newComment, error:newCommentError } = await supabase.from('Comment').insert([{ user_id: user_id ,post_id: params.id,content: comment },]).select("*,User(name,party)");
+      const { data:Post, error:PostError } = await supabase.from('Post').insert([{ title: post.title, subtitle: "",content: "",user_id: user_id,type:"article",link: newComment![0].content },]);
+      if(newCommentError) throw new Error(newCommentError.message) 
+      if(PostError) throw new Error(PostError.message) 
+      setCommentList(prev => [...prev, newComment![0]])
+      setComment("")
+    } catch (error) {
+      console.error('댓글 작성 중 오류가 발생했습니다:', error);
+    }
   }
   const handleComment = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -92,7 +88,8 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
       const { data, error } = await supabase
       .storage
       .from('POST')
-      .download(`file/${post.id}/${post.file[0]}`);
+      // TODO: try add BASE_URL
+      .download(`/file/${post.id}/${post.file[0]}`);
       if(error) console.error("FILE DOWNLOAD ERROR : ", error)
       console.log(data)
     }
@@ -103,30 +100,22 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
           return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
         }),
       );
-      console.log({result})
-      // return result.map((el) => (el.data as any).fullPath);
     }
-  }
-  const calculateTimeAgo = (createdAt: string) => {
-    const now = dayjs();
-    const timeAgo = dayjs(createdAt);
-    return timeAgo.from(now);
   }
 
   return (
     <Container>
-      {/* TODO:Should be change to antd message */}
-      {/* WARNING: error occur when using antd in this repo */}
       {isAlertShown && 
         <Fade 
           in={isAlertShown}
-          timeout={{ enter: 1000, exit: 1000 }} 
+          timeout={{ enter: 1000, exit: 1000 }}
+          style={{ position: "fixed", zIndex: 999, top: "15%", left: "50%",transform: "translate(-50%, -50%)"}}
           addEndListener={() => {
             setTimeout(() => {
               setIsAlertShown(false);
             }, 3000);
           }}>
-          <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+          <Alert icon={<CheckIcon fontSize="inherit" />} severity="success" style={{whiteSpace:"nowrap"}}>
             URL이 복사되었습니다.
           </Alert>
         </Fade>
@@ -154,28 +143,12 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         </FileButton>
         <input id="file" type="file" className="hidden" />
       </ActionContainer>
-      <CommentContainer>
-        <CommentCount>댓글 {commentList.length}</CommentCount>
-        <CommentInput
-          value={comment}
-          onChange={handleComment}
-          placeholder="ex. Pick한 기자만 댓글을 달 수 있습니다"
-          disabled={!Boolean(isPickedStatus)}
-        />
-        <button type="button" style={{float: "inline-end", marginTop: "14px"}} onClick={handleUploadComment}>
-          댓글달기
-        </button>
-      </CommentContainer>
-      <CommentList>
-        {commentList.map((el:any) => {
-          return (
-            <CommentItem key={el.id}>
-              <p>기자{el.User.name} · {el.User.party}소속</p>
-              <p>{el.content}</p>
-              <p>{calculateTimeAgo(el.created_at)}</p>
-            </CommentItem>
-          )})}
-      </CommentList>
+        <CommentList commentList={commentList}
+          comment={comment}
+          isPickedStatus={isPickedStatus} 
+          handleComment={handleComment}
+          handleUploadComment={handleUploadComment}
+          />
       <ReporterContainer>
         {/* TODO<Client>: Image size 84px 로 맞추기 */}
         <CommentCount>Pick한 기자</CommentCount>
@@ -245,9 +218,6 @@ const LikeContainer = styled.div`
   align-items: center;
   gap: 8px;
 `;
-const CommentContainer = styled.div`
-  padding: 0 16px;
-`;
 const CommentCount = styled.p`
   color: #000;
   font-size: 15px;
@@ -255,32 +225,6 @@ const CommentCount = styled.p`
   font-weight: 500;
   line-height: 100%; /* 15px */
   margin-bottom: 10px;
-`;
-const CommentInput = styled.input`
-  width: 100%;
-  max-height: 50px;
-  border-radius: 6px;
-  padding: 18px 16px;
-  background-color: #f7f7fa;
-`;
-const CommentList = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 34px;
-  padding: 0 16px;
-  margin: 18px 0 28px;
-`;
-const CommentItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  p {
-    color: #636366;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 100%;
-  }
 `;
 
 const ReporterContainer = styled.div`
