@@ -4,41 +4,60 @@ import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../pages/api/auth/[...nextauth]"
+import { authOptions } from "../pages/api/auth/[...nextauth]";
+import { useState } from "react";
+import { CircularProgress } from "@mui/material"; // MUI CircularProgress 추가
+import { Backdrop } from "@mui/material";
 
-export const getServerSideProps = async (context:any) => { 
+export const getServerSideProps = async (context: any) => {
   const req = context.req as any;
   const res = context.res as any;
-  const session = await getServerSession(req, res, authOptions)
+  const session = await getServerSession(req, res, authOptions);
 
   if (session) {
     return {
       redirect: {
-        destination: '/',
+        destination: "/",
         permanent: false,
       },
-    }
+    };
   }
- return { props: {} } 
-}
+  return { props: {} };
+};
 
 const SignInPage = () => {
   const router = useRouter();
-  const moveToSignUpTypePage = () => router.push("/signupType");
   const { register, handleSubmit } = useForm();
+  const [isSigninFail, setIsSigninFail] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const moveToSignUpTypePage = () => router.push("/signupType");
+
   const onSubmit: SubmitHandler<any> = async (data: {
     phoneNumber: string;
     password: string;
   }) => {
-    signIn("credentials", {
+    setIsLoading(true);
+    const res = await signIn("credentials", {
       phoneNumber: data.phoneNumber,
       password: data.password,
-      callbackUrl: "/"
+      redirect: false,
     });
+
+    if (res?.status === 401) {
+      setIsSigninFail(true);
+      setIsLoading(false);
+    } else {
+      router.push("/");
+    }
   };
 
   return (
     <Container>
+      {isLoading && 
+        <Backdrop open={isLoading}>
+          <CircularProgress size={24} color="inherit" />
+        </Backdrop>
+      }
       <Image alt="Logo" src={"/WiPressLogo.webp"} width={210} height={130} />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Input
@@ -50,9 +69,17 @@ const SignInPage = () => {
           type={"password"}
           {...register("password")}
         />
-        {/* TODO: 로그인 실패 시 UI  */}
+        {isSigninFail && (
+          <SigninFailBox>
+            <p>
+              아이디 혹은 비밀번호가 일치하지 않습니다. 입력한 내용을 다시 확인해
+              주세요.
+            </p>
+          </SigninFailBox>
+        )}
+
         <Button type="submit">
-          <p>로그인</p>
+        <p>로그인</p>
         </Button>
       </Form>
       <OutLineButton onClick={moveToSignUpTypePage}>
@@ -76,6 +103,17 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
+const SigninFailBox = styled.div`
+  border-radius: 8px;
+  padding: 20px;
+  line-height: 20px;
+  background-color: #fafafa;
+  p {
+    font-size: 13px;
+    color:#e65f3e;
+  }
+`;
+
 const Form = styled.form`
   width: 100%;
   margin-top: 48px;
@@ -84,12 +122,6 @@ const Form = styled.form`
   align-items: center;
   flex-direction: column;
   gap: 14px;
-`;
-
-const AnchorRow = styled.div`
-  display: flex;
-  gap: 0 4px;
-  margin-top: 24px;
 `;
 
 const Input = styled.input`
@@ -123,7 +155,7 @@ const Button = styled.button`
 const OutLineButton = styled(Button)`
   width: calc(100% - 1px);
   border: 1px solid #000;
-  margin-top: 48px;
+  margin-top: 14px;
   background-color: #fff;
   p {
     color: #000;
