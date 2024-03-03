@@ -9,7 +9,7 @@ import { authOptions } from "../../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { IconButton , Alert, Fade} from '@mui/material';
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { CommentList, MyPickItem } from "@/domain/Posts";
 import { CustomImage, NavBar, ImageSwiper} from "@/components";
 
@@ -19,14 +19,20 @@ export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
-
+  let myPick:any[] = [];
+  let user_id = "";
+  if(!!session){
+    const { data: myPickData, error:myPickEror } = await supabase.from('Pick').select(`*, Post: post_id(id,title,content,image,picks)`).eq("user_id", (session?.user as any).id);
+    myPick = myPickData as any[]
+    user_id = (session?.user as any).id
+  }
   const { data: Post, error:PostError } = await supabase.from('Post').select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`).eq("id", context.query.id);
-  const { data: myPick, error:myPickEror } = await supabase.from('Pick').select(`*, Post: post_id(id,title,content,image,picks)`).eq("user_id", (session?.user as any).id);
   const { data: PickRegistors, error:PickRegistorsError } = await supabase.from('Post').select(`*, Pick ( * , User( name,profile,party,position ) )`).eq("id", context.query.id);
 
-  return { props: { post : Post![0], user_id: (session?.user as any).id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
+  return { props: { post : Post![0], user_id: user_id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
 }
 const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
+  const router = useRouter()
   const params = useParams<{ id: string }>();
   const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!;
   const isLike = post.Like.some((el: { user_id: string }) => el.user_id === user_id);
@@ -46,27 +52,31 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     setIsAlertShown(true)
   }
   const handleClickLike = async () => {
-    setIsLiked(prevState => !prevState);
-    const updatedLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
-    try {
-      if(isLiked){
-        await Promise.all([
-          supabase.from('Like').delete().eq('user_id', user_id).eq('post_id', params.id),
-          supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
-        ]);
-      }else {
-        await Promise.all([
-          supabase.from('Like').upsert({ user_id: user_id, post_id: params.id }),
-          supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
-        ]);
+    if(Boolean(user_id) === false) router.push("/signin");
+    else {
+      setIsLiked(prevState => !prevState);
+      const updatedLikeCount = isLiked ? likeCount - 1 : likeCount + 1;
+      try {
+        if(isLiked){
+          await Promise.all([
+            supabase.from('Like').delete().eq('user_id', user_id).eq('post_id', params.id),
+            supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
+          ]);
+        }else {
+          await Promise.all([
+            supabase.from('Like').upsert({ user_id: user_id, post_id: params.id }),
+            supabase.from('Post').update({ likes: updatedLikeCount }).eq('id', params.id)
+          ]);
+        }
+        setLikeCount(updatedLikeCount);
+      } catch (error) {
+        console.error('좋아요 처리 중 오류가 발생했습니다:', error);
       }
-      setLikeCount(updatedLikeCount);
-    } catch (error) {
-      console.error('좋아요 처리 중 오류가 발생했습니다:', error);
     }
   }
 
   const handleUploadComment = async () => {
+    if(Boolean(user_id) === false) router.push("/signin");
     try {
       const { data:newComment, error:newCommentError } = await supabase.from('Comment').insert([{ user_id: user_id ,post_id: params.id,content: comment },]).select("*,User(name,party)");
       const { data:Post, error:PostError } = await supabase.from('Post').insert([{ title: post.title, subtitle: "",content: "",user_id: user_id,type:"article",link: newComment![0].content },]);
@@ -84,22 +94,25 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   };
   // TODO<SERVER>: implement download file  
   const handleDownloadFile = async () => {
-    if(post.file.length === 1){
-      const { data, error } = await supabase
-      .storage
-      .from('POST')
-      // TODO: try add BASE_URL
-      .download(`/file/${post.id}/${post.file[0]}`);
-      if(error) console.error("FILE DOWNLOAD ERROR : ", error)
-      console.log(data)
-    }
-    if(post.file.length > 1){
-      const result = await Promise.all(
-        Object.values(post.file).map((eachfile:any) => {
-          const filePath = eachfile.split("/").at(-1);
-          return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
-        }),
-      );
+    if(Boolean(user_id) === false) router.push("/signin");
+    else {
+      if(post.file.length === 1){
+        const { data, error } = await supabase
+        .storage
+        .from('POST')
+        // TODO: try add BASE_URL
+        .download(`/file/${post.id}/${post.file[0]}`);
+        if(error) console.error("FILE DOWNLOAD ERROR : ", error)
+        console.log(data)
+      }
+      if(post.file.length > 1){
+        const result = await Promise.all(
+          Object.values(post.file).map((eachfile:any) => {
+            const filePath = eachfile.split("/").at(-1);
+            return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
+          }),
+        );
+      }
     }
   }
 

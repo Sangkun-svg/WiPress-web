@@ -17,28 +17,31 @@ interface Props {
 }
 
 const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props) => {
+  const router = useRouter();
   const isPicked = Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
-  const router = useRouter();
    
   const handleDetailPage = () => router.push(`/registerPost/${id}`);
   const handleClickPick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    setIsPickedStatus(prevState => !prevState);
-    try {
-      if(isPickedStatus){
-        await Promise.all([
-          supabase.from('Pick').delete().eq('user_id', user_id).eq('post_id', id),
-          supabase.from('Post').update({ picks: picks - 1 }).eq('id', id)
-        ]);
-      }else {
-        await Promise.all([
-          supabase.from('Pick').insert([{ user_id: user_id, post_id: id }]),
-          supabase.from('Post').update({ picks: picks + 1 }).eq('id', id)
-        ]);
+    if(Boolean(user_id) === false) { router.push("/signin") }
+    else{
+      setIsPickedStatus(prevState => !prevState);
+      try {
+        if(isPickedStatus){
+          await Promise.all([
+            supabase.from('Pick').delete().eq('user_id', user_id).eq('post_id', id),
+            supabase.from('Post').update({ picks: picks - 1 }).eq('id', id)
+          ]);
+        }else {
+          await Promise.all([
+            supabase.from('Pick').insert([{ user_id: user_id, post_id: id }]),
+            supabase.from('Post').update({ picks: picks + 1 }).eq('id', id)
+          ]);
+        }
+      } catch (error) {
+        console.error('Pick 처리 중 오류가 발생했습니다:', error);
       }
-    } catch (error) {
-      console.error('Pick 처리 중 오류가 발생했습니다:', error);
     }
   }
   

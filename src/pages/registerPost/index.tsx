@@ -11,14 +11,15 @@ export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
-
+  const user_id = !!session ? (session?.user as any).id : null
   const { data: Post, error } = await supabase
   .from('Post')
   .select(`
     * ,Pick (user_id)`)
-  .eq("type", "registerPost");
+  .eq("type", "registerPost")
+  .order("created_at", {ascending: false});
 
-  return { props: { post : Post, user_id: (session?.user as any).id } } 
+  return { props: { post : Post, user_id : user_id} } 
 }
 
 const RegisterPost = ({post, user_id} : any) => {

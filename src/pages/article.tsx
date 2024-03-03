@@ -7,7 +7,11 @@ import { useRouter } from "next/navigation";
 import { IconButton } from "@mui/material";
 
 export const getServerSideProps = async () => { 
-  const { data, error } = await supabase.from("Post").select("*").eq("type", "article");
+  const { data, error } = await supabase
+  .from("Post")
+  .select("*")
+  .eq("type", "article")
+  .order("created_at", {ascending: false});
   
   if(error) throw new Error(error.message);
   
