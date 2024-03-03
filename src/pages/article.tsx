@@ -2,23 +2,38 @@ import Layout from "../components/Layout";
 import ArticlePostItem from "../components/PostItems/ArticlePostItem";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
+import { supabase } from "@/utils/database";
+import { useRouter } from "next/navigation";
+import { IconButton } from "@mui/material";
 
-interface Props {}
+export const getServerSideProps = async () => { 
+  const { data, error } = await supabase.from("Post").select("*").eq("type", "article");
+  
+  if(error) throw new Error(error.message);
+  
+  return {
+    props: {
+      data: data,
+    }
+  }
+}
 
-const ArticlePage = () => {
+const ArticlePage = (props:any) => {
+  const router = useRouter();
+  const handleSearch = () => router.push("/search")
   return (
     <Layout>
       <Container>
         <RowDiv>
           <Title>기사 게시판</Title>
-          <SearchIcon />
+          <IconButton onClick={handleSearch}>
+            <SearchIcon />
+          </IconButton>
         </RowDiv>
-        {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
-          <ArticlePostItem />
-          <ArticlePostItem />
-          <ArticlePostItem />
-          <ArticlePostItem />
+          {props.data.map((el:any) => {
+            return <ArticlePostItem key={el.link} title={el.title} link={el.link}/>
+          })}
         </PostItemList>
       </Container>
     </Layout>

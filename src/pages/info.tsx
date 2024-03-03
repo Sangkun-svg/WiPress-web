@@ -2,16 +2,23 @@ import Layout from "../components/Layout";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import InfoPostItem from "../components/PostItems/InfoPostItem";
+import { useRouter } from "next/navigation";
+import { IconButton } from "@mui/material";
 
 interface Props {}
 
 const InfoPage = () => {
+  const router = useRouter();
+  const handleSearch = () => router.push("/search")
+
   return (
     <Layout>
       <Container>
         <RowDiv>
           <Title>여론분석 게시판</Title>
-          <SearchIcon />
+          <IconButton onClick={handleSearch}>
+            <SearchIcon />
+          </IconButton>
         </RowDiv>
         {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>

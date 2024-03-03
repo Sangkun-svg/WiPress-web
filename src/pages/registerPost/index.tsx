@@ -5,7 +5,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { authOptions } from "../../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
-
+import { useRouter } from "next/navigation";
+import { IconButton } from "@mui/material";
 export const getServerSideProps = async (context:any) => { 
   const req = context.req as any;
   const res = context.res as any;
@@ -21,14 +22,17 @@ export const getServerSideProps = async (context:any) => {
 }
 
 const RegisterPost = ({post, user_id} : any) => {
+  const router = useRouter();
+  const handleSearch = () => router.push("/search")
   return (
     <Layout>
       <Container>
         <RowDiv>
           <Title>보도요청 게시판</Title>
-          <SearchIcon />
+          <IconButton onClick={handleSearch}>
+            <SearchIcon />
+          </IconButton>
         </RowDiv>
-        {/* TODO: Implement Search Modal */}
         <PostItemList>
           {post?.map((el:any) => {
               return <BasicPostItem key={el.id} user_id={user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
