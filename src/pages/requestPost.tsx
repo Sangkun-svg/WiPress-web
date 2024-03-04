@@ -67,6 +67,7 @@ const RequestPost = (props: any) => {
   };
 
   const uploadFile = async (file:any, post_id: string) => {
+    if (!file) return null;
     if (file.length === 1) {
       const { data, error } = await supabase.storage
         .from("POST")
@@ -85,6 +86,7 @@ const RequestPost = (props: any) => {
   };
 
   const uploadImageFile = async (file:any, post_id:string) => {
+    if (!file) return null; 
     if (file.length === 1) {
       const { data, error } = await supabase.storage
         .from("POST")
@@ -104,10 +106,12 @@ const RequestPost = (props: any) => {
     }
   };
 
-  const onSubmit: SubmitHandler<any> = async (data) => {
+  const onSubmit: SubmitHandler<any> = async (formData) => {
     try {
-      const newPost = await axios.post("/api/post/requestPost", { data: {...data, user_id: props.user_id, post_type : "registerPost"} });
+      const newPost = await axios.post("/api/post/requestPost", { data: {...formData, user_id: props.user_id, post_type : "registerPost"} });
       if(newPost.status === 200){
+        const { data:acceptedPost, error:acceptedPostError } = await supabase.from('AcceptedPost').insert([{ post_id: newPost.data.newPost.id,}]).select();
+        console.log({acceptedPost})
         const imagePath = await uploadImageFile(images, newPost.data.newPost.id);
         const filePath = await uploadFile(files, newPost.data.newPost.id);
         const { data, error } = await supabase

@@ -74,7 +74,6 @@ const UpdateUser = ({ user }:any) => {
           <Input defaultValue={user.name} placeholder="ex. 홍길동" {...register("name")} />
         </FormElement>
         <FormElement>
-          {/* TODO: Input form 변경, library 사용 추천 */}
           <Label>생년월일</Label>
           <Input
             defaultValue={user.birth}

@@ -27,7 +27,7 @@ export const getServerSideProps = async (context:any) => {
     user_id = (session?.user as any).id
   }
   const { data: Post, error:PostError } = await supabase.from('Post').select(`*, Pick ( * ), Like( * ), Comment(*, User: user_id(name,party,position))`).eq("id", context.query.id);
-  const { data: PickRegistors, error:PickRegistorsError } = await supabase.from('Post').select(`*, Pick ( * , User( name,profile,party,position ) )`).eq("id", context.query.id);
+  const { data: PickRegistors, error:PickRegistorsError } = await supabase.from('Post').select(`*, Pick ( * , User( id,name,profile,party,position ) )`).eq("id", context.query.id);
 
   return { props: { post : Post![0], user_id: user_id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
 }
@@ -44,7 +44,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   const [isPickedStatus] = useState<boolean>(isPicked)
   const [hasFile] = useState<boolean>(Boolean(post.file));
   const [likeCount, setLikeCount] = useState<number>(post.likes);
-  
+
   const handleClickShare = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href);
@@ -92,7 +92,6 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     event.stopPropagation();
     setComment(event.target.value);
   };
-  // TODO<SERVER>: implement download file  
   const handleDownloadFile = async () => {
     if(Boolean(user_id) === false) router.push("/signin");
     else {
@@ -166,8 +165,11 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         {/* TODO<Client>: Image size 84px 로 맞추기 */}
         <CommentCount>Pick한 기자</CommentCount>
         {pickRegistors.map((el: any) => {
-          return <ReporterItem key={el.user_post_pick_id}>
-            {el.User.profile ? 
+          const isWritten = post.Comment.some((comment: { user_id: string }) => comment.user_id === el.User.id);
+          return (
+          <div style={{display: "flex", justifyContent: "space-between"}}>
+          <ReporterItem key={el.user_post_pick_id}>
+            {el?.User?.profile ? 
               <CustomImage alt="user_profile" src={el.User.profile} width={84} height={84}/> :  
               <div className="demoImage" style={{ width: "84px", height: "84px", borderRadius: "6px", background: "#F2F2F7", }} />
             }
@@ -183,20 +185,25 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
               </ReporterTypo>
             </ReporterTypoWrapper>
           </ReporterItem>
+          <Chip>
+            <p>{isWritten ? "작성완료" : "미작성"}</p>
+          </Chip>
+          </div>  
+          )
         })}
       </ReporterContainer>
       <MyPickContainer>
-        {/* TODO<Client>: 작성완료/미완료 Chip 만들기 */}
         <CommentCount>나의 Pick 현황</CommentCount>
           {myPick.map((el:any) => {
-              return <MyPickItem key={el.user_post_pick_id} 
+              return <MyPickItem 
+                key={el.user_post_pick_id} 
                 picks={el.Post.picks}
                 user_id={user_id}
                 id={el.Post.id}
                 title={el.Post.title}
                 content={el.Post.content}
                 images={el.Post.image}
-              />;
+              />
           })}
       </MyPickContainer>
     </Container>
@@ -210,6 +217,22 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
 `;
+
+const Chip = styled.div`
+  height: 20px;
+  border-radius: 3px;
+  background: #F7F7FA;
+  padding: 3px 4px;
+  gap: 10px;
+  p{
+    color: var(--Gray600, var(--Gray600, #636366));
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 100%; /* 13px */
+  }
+`;
+
 const ContentContainer = styled.div`
   width: 100%;
   display: flex;

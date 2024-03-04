@@ -20,7 +20,6 @@ const NoticePage = () => {
             <SearchIcon />
           </IconButton>
         </RowDiv>
-        {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
         </PostItemList>
       </Container>

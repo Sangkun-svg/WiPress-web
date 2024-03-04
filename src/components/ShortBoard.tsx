@@ -21,7 +21,8 @@ const ShortBoard = ({ label, type, data }: Props) => {
       </RowDiv>
       <PostPreviewList>
         {data?.map((el:any) => {
-          return <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(el.id)}>{el.title}</PostPreviewItem>
+          const post = type === "registerPost" ? el.Post : el;
+          return <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id)}>{post.title}</PostPreviewItem>
         })}
       </PostPreviewList>
     </Container>

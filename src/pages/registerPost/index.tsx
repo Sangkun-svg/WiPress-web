@@ -12,14 +12,14 @@ export const getServerSideProps = async (context:any) => {
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
   const user_id = !!session ? (session?.user as any).id : null
-  const { data: Post, error } = await supabase
-  .from('Post')
-  .select(`
-    * ,Pick (user_id)`)
-  .eq("type", "registerPost")
-  .order("created_at", {ascending: false});
+  const { data: AcceptedPost, error } = await supabase
+  .from('AcceptedPost')
+  .select(`*, Post (* , Pick( * ) )`)
+  .eq('isAccepted', true)
+  .eq('Post.type', 'registerPost')
+  .order('created_at', { ascending: false });
 
-  return { props: { post : Post, user_id : user_id} } 
+  return { props: { post : AcceptedPost, user_id : user_id} } 
 }
 
 const RegisterPost = ({post, user_id} : any) => {
@@ -36,7 +36,8 @@ const RegisterPost = ({post, user_id} : any) => {
         </RowDiv>
         <PostItemList>
           {post?.map((el:any) => {
-              return <BasicPostItem key={el.id} user_id={user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
+              if(!el.Post) return <></>;
+              return <BasicPostItem key={el.Post.id} user_id={user_id} id={el.Post.id} title={el.Post.title} picks={el.Post.picks} content={el.Post.content} images={el.Post.image} Pick={el.Post.Pick} />
           })}
         </PostItemList>
       </Container>

@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
         };
         const { data: users, error } = await supabase
           .from("User")
-          .select("id,phoneNumber,password,profile,type")
+          .select("id,phoneNumber,password,profile,type,role")
           .eq("phoneNumber", phoneNumber);
         const user = users?.[0];
         if (user) {
@@ -57,6 +57,7 @@ export const authOptions: NextAuthOptions = {
         token.user.id = user.id;
         token.user.profile = user.profile;
         token.user.type = user.type;
+        token.user.role = user.role;
       }
       return token;
     },

@@ -5,11 +5,17 @@ import ShortBoard from "../components/ShortBoard";
 
 export const getServerSideProps = async () => { 
   try {
-    const { data: registerPost, error: registerPostError } = await supabase.from("Post").select("*").eq("type", "registerPost").range(0, 3).order("created_at", { ascending: false });
-    const { data: article, error: articleError } = await supabase.from("Post").select("*").eq("type", "article").range(0, 3).order("created_at", { ascending: false });
+    // const { data: registerPost, error: registerPostError } = await supabase.from("Post").select("*").eq("type", "registerPost").range(0, 3).order("created_at", { ascending: false });
+    const { data: registerPost, error:registerPostError } = await supabase
+    .from('AcceptedPost')
+    .select(`*, Post (* , Pick( * ) )`)
+    .eq('isAccepted', true)
+    .eq('Post.type', 'registerPost')
+    .order('created_at', { ascending: false });
+      const { data: article, error: articleError } = await supabase.from("Post").select("*").eq("type", "article").range(0, 3).order("created_at", { ascending: false });
     const { data: notice, error: noticeError } = await supabase.from("Post").select("*").eq("type", "notice").range(0, 3).order("created_at", { ascending: false });
     const { data: info, error: infoError } = await supabase.from("Post").select("*").eq("type", "info").range(0, 3).order("created_at", { ascending: false });
-
+    console.log({registerPost})
     if (registerPostError || articleError || noticeError || infoError) {
       throw new Error("데이터 가져오기 중에 오류가 발생했습니다.");
     }

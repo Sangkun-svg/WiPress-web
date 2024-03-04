@@ -29,7 +29,7 @@ const CommentList = ({commentList,comment,isPickedStatus,handleComment,handleUpl
                 <CommentInput
                     value={comment}
                     onChange={handleComment}
-                    placeholder="ex. Pick한 기자만 댓글을 달 수 있습니다"
+                    placeholder="Pick한 기자만 댓글을 달 수 있습니다"
                     disabled={!Boolean(isPickedStatus)}
                 />
                 <button type="button" style={{float: "inline-end", marginTop: "14px"}} onClick={handleUploadComment}>

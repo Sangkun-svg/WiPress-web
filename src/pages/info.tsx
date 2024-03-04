@@ -20,7 +20,6 @@ const InfoPage = () => {
             <SearchIcon />
           </IconButton>
         </RowDiv>
-        {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
           <InfoPostItem />
           <InfoPostItem />
