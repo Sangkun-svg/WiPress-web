@@ -48,14 +48,12 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
   return (
     <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 8px 18px 20px"}>
       <div style={{display : "flex" , gap: 10}}>
-        {/* TODO: All Image component set fix sizes */}
-        {images &&
+        {images &&  
           <CustomImage
             alt="thumbnail"
             src={images[0]}
             width={120}
             height={90}
-            style={{ borderRadius: "6px" }}
           />
         }
         <ColDiv>

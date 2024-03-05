@@ -35,11 +35,11 @@ const AdminRegisterPostDetail = ({post,post_id}:any) => {
     };
 
     const handleAccept = async () => {
-        setIsAccepted(prev => !prev);
-        const { data, error } = await supabase.from('AcceptedPost')
-        .update({ isAccepted: isAccepted })
-        .eq('post_id', post_id)
-        .select()
+      const { data, error } = await supabase.from('AcceptedPost')
+      .update({ isAccepted: !isAccepted })
+      .eq('post_id', post_id)
+      .select();
+      setIsAccepted(prev => !prev);
     };
     return (
         <Container>
