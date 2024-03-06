@@ -94,7 +94,7 @@ const SignUpPage = () => {
     return (
       <div className='flex flex-col w-full gap-2.5'>
         <label className='text-[15px] not-italic font-medium leading-[100%]'>{label}</label>
-        <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' {...register(registerType, { required: true })}/>
+        <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' {...rest} {...register(registerType, { required: true })}/>
       </div>
     )
   }
@@ -115,7 +115,7 @@ const SignUpPage = () => {
           label="휴대폰 번호"
           maxLength={11}
           placeholder="ex. 010-0000-0000"
-          registerType="name"
+          registerType="phoneNumber"
           onKeyPress={(event:any) => {
             if (!/[0-9]/.test(event.key)) {
               event.preventDefault();

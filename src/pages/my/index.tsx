@@ -51,75 +51,51 @@ const MyPage = ({user}: any) => {
   }
 
   return (
-    <Container>
-      <MainContent>
-      <Title>마이페이지</Title>
-      <ProfileContinaer>
-        <div style={{ display: "flex"}}>
+    <div className="flex items-center flex-col min-h-screen pt-[26px] pb-0 px-4">
+      <div className="w-full max-w-[600px] mb-[60px] mx-auto my-0">
+      <p className="text-[19px] not-italic font-semibold leading-[100%]">마이페이지</p>
+      <div className="flex justify-between mt-[26px] mb-3.5 mx-0">
+        <div className="flex">
           <Avatar style={{ width: "84px", height: "84px" }} src={user.profile ? BASE_URL + user.profile : ""}/>
-          <ColDiv>
-            <NameText>{user.name}</NameText>
-            <UserInfoText>{user.party}기자</UserInfoText>
-            <UserInfoText>{user.position}소속</UserInfoText>
-          </ColDiv>
+          <div className="flex flex-col justify-center gap-1.5 ml-3">
+            <p className="text-lg not-italic font-medium leading-[100%]">{user.name}</p>
+            <p className="text-[#4a4a4a] text-[15px] not-italic font-normal leading-[100%]">{user.party}기자</p>
+            <p className="text-[#4a4a4a] text-[15px] not-italic font-normal leading-[100%]">{user.position}소속</p>
+          </div>
         </div>
-        <Button onClick={() => handleMove("/my/update")}>
-          <EditOutlinedIcon />
-          <p>편집</p>
-        </Button>
-      </ProfileContinaer>
-      <ItemList>
-        <Item onClick={() => handleMove("/myPicks")}>
-          <p>나의 Pick 모아보기</p>
+        <button 
+          className="flex justify-center items-center max-h-[34px] bg-[#f7f7fa] gap-1 px-3.5 py-1.5 rounded-md" 
+          onClick={() => handleMove("/my/update")}
+        >
+          <EditOutlinedIcon style={{color : "#0B834B"}} />
+          <p className="text-[#4a4a4a] text-center text-[15px] not-italic font-normal leading-[100%] tracking-[0.14px]">편집</p>
+        </button>
+      </div>
+      <div className="flex flex-col gap-[5px]">
+        <div className="cursor-pointer flex items-center justify-between w-full max-h-16 px-1.5 py-6" onClick={() => handleMove("/myPicks")}>
+          <p className="text-[#222] text-[15px] not-italic font-normal leading-[100%] tracking-[0.15px]">나의 Pick 모아보기</p>
           <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-        </Item>
-        <Item onClick={handleSignOut}>
-          <p>로그아웃</p>
+        </div>
+        <div className="cursor-pointer flex items-center justify-between w-full max-h-16 px-1.5 py-6 last:border-b-0" onClick={handleSignOut}>
+          <p className="text-[#222] text-[15px] not-italic font-normal leading-[100%] tracking-[0.15px]">로그아웃</p>
           <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-        </Item>
-        <Item onClick={handleDeleteUser}>
-          <p>계정삭제</p>
+        </div>
+        <div className="cursor-pointer flex items-center justify-between w-full max-h-16 px-1.5 py-6 last:border-b-0" onClick={handleDeleteUser}>
+          <p className="text-[#222] text-[15px] not-italic font-normal leading-[100%] tracking-[0.15px]">계정삭제</p>
           <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-        </Item>
-        <Item onClick={() => handleMove("/police/personal")}>
-          <p>개인정보처리방침</p>
+        </div>
+        <div className="cursor-pointer flex items-center justify-between w-full max-h-16 px-1.5 py-6 last:border-b-0" onClick={() => handleMove("/police/personal")}>
+          <p className="text-[#222] text-[15px] not-italic font-normal leading-[100%] tracking-[0.15px]">개인정보처리방침</p>
           <ArrowForwardIosIcon style={{ color: "#D4D4D4" }} />
-        </Item>
-      </ItemList>
-      </MainContent>
+        </div>
+      </div>
+      </div>
       <BottomNav />
-    </Container>
+    </div>
   );
 };
 
 export default MyPage;
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 26px 16px 0;
-  min-height: 100vh; /* Changed height to min-height */
-`;
-
-const MainContent = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  margin-bottom: 60px; /* Adjust as needed */
-`;
-
-const ProfileContinaer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 26px 0 14px;
-`;
-
-const ItemList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-`;
 
 const Item = styled.div`
   cursor: pointer;
@@ -131,64 +107,5 @@ const Item = styled.div`
   padding: 24px 6px;
   &:not(:last-child) {
     border-bottom: 1px solid #e5e5ea;
-  }
-  p {
-    color: #222;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 100%;
-    letter-spacing: 0.15px;
-  }
-`;
-
-const ColDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  margin-left: 12px;
-`;
-
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
-
-const NameText = styled.p`
-  color: #000;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%;
-`;
-const UserInfoText = styled.p`
-  color: #4a4a4a;
-  font-size: 15px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-const Button = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: 34px;
-  padding: 6px 14px;
-  border-radius: 6px;
-  background-color: #f7f7fa;
-  gap: 4px;
-  p {
-    color: #4a4a4a;
-    text-align: center;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 100%;
-    letter-spacing: 0.14px;
   }
 `;
