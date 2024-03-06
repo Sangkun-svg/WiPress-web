@@ -18,7 +18,7 @@ interface Props {
 
 const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props) => {
   const router = useRouter();
-  const isPicked = Pick === [] ? false : Pick.some((el: { user_id: string }) => el.user_id === user_id);
+  const isPicked = Pick.length === 0 ? false : Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isPickedStatus, setIsPickedStatus] = useState<boolean>(isPicked)
    
   const handleDetailPage = () => router.push(`/registerPost/${id}`);

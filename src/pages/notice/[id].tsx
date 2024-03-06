@@ -79,9 +79,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     if(Boolean(user_id) === false) router.push("/signin");
     try {
       const { data:newComment, error:newCommentError } = await supabase.from('Comment').insert([{ user_id: user_id ,post_id: params.id,content: comment },]).select("*,User(name,party)");
-      const { data:Post, error:PostError } = await supabase.from('Post').insert([{ title: post.title, subtitle: "",content: "",user_id: user_id,type:"article",link: newComment![0].content },]);
       if(newCommentError) throw new Error(newCommentError.message) 
-      if(PostError) throw new Error(PostError.message) 
       setCommentList(prev => [...prev, newComment![0]])
       setComment("")
     } catch (error) {
@@ -132,7 +130,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
           </Alert>
         </Fade>
       }
-      <NavBar title={"보도자료 게시글"} />
+      <NavBar title={"공지사항 게시글"} />
       <ContentContainer>
         <Title>{post.title}</Title>
         <SubTitle>{post.subtitle}</SubTitle>

@@ -1,16 +1,40 @@
 import Layout from "../components/Layout";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
-import BasicPostItem from "../components/PostItems/BasicPostItem";
+import NoticePostItem from "../components/PostItems/NoticePostItem";
+import { getServerSession } from "next-auth";
+import { supabase } from "@/utils/database";
 import { useRouter } from "next/navigation";
 import { IconButton } from "@mui/material";
+import BasicPostItem from "@/components/PostItems/BasicPostItem";
+import { authOptions } from "./api/auth/[...nextauth]";
 
-interface Props {}
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+  const user_id = !!session ? (session?.user as any).id : null
 
-const NoticePage = () => {
+  const { data, error } = await supabase
+  .from("Post")
+  .select("*, Pick (*)")
+  .eq("type", "notice")
+  .order("created_at", {ascending: false});
+  
+  if(error) throw new Error(error.message);
+  
+  return {
+    props: {
+      data: data,
+      user_id : user_id
+    }
+  }
+}
+
+const NoticePage = (props:any) => {
   const router = useRouter();
   const handleSearch = () => router.push("/search")
-
+  console.log(props)
   return (
     <Layout>
       <Container>
@@ -21,6 +45,10 @@ const NoticePage = () => {
           </IconButton>
         </RowDiv>
         <PostItemList>
+          {props.data.map((el:any) => {
+                if(!el) return <></>;
+                return <BasicPostItem key={el.id} user_id={props.user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
+          })}
         </PostItemList>
       </Container>
     </Layout>

@@ -1,12 +1,55 @@
-import styled from 'styled-components';
+import { getServerSession } from "next-auth";
+import { authOptions } from '../../api/auth/[...nextauth]';
+import { supabase } from "@/utils/database";
+import { AdminListItem } from "@/components/admin";
 import AdminLayout from '../../../components/admin/Layout';
+import { Stack } from "@mui/material";
 
-interface Props {}
+export const getServerSideProps = async (context:any) => {
+    const req = context.req as any;
+    const res = context.res as any;
+    const session = await getServerSession(req, res, authOptions)
 
-const Name = () => {
-    return <AdminLayout></AdminLayout>
+    if (!session) {
+        return {
+          redirect: {
+            destination: '/signin',
+            permanent: false,
+          },
+        }
+    }
+    if ((session?.user as any)?.role !== "admin") {
+        return {
+          redirect: {
+            destination: '/',
+            permanent: false,
+          },
+        }
+    }
+
+    const { data: Post, error } = await supabase
+    .from('Post')
+    .select(`*, Pick( * )`)
+    .eq("type", "notice")
+    .order('created_at', { ascending: false });
+  
+    return {
+        props : {
+            Post: Post,
+        }
+    }
+}
+
+const AdminNoticePage = (props:any) => {
+    return (
+      <AdminLayout>
+        <Stack spacing={2}>
+          {props.Post.map((el:any) => {
+              return <AdminListItem key={el.id} post={el} type={"notice"}/>
+          })}
+        </Stack>
+      </AdminLayout>
+    )
 };
 
-export default Name;
-
-const Container = styled.div``;
+export default AdminNoticePage;

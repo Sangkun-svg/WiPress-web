@@ -2,28 +2,28 @@ import { useRouter } from "next/navigation";
 import styled from "styled-components";
 
 interface Props {
-  id: string;
-  title: string;
-  content: string;
+    post: any
 }
 
-const InfoPostItem = ({id,title,content}:Props) => {
+const NoticePostItem = ({post} : Props) => {
   const router = useRouter();
-  const handleClick = () => router.push("/info/" + id)
+  const handleClick = () => { router.push("/notice/" + post.id)}
   return (
     <Container onClick={handleClick}>
       <ColDiv>
-        <PostTitle>{title}</PostTitle>
-        <PostDescription>{content}</PostDescription>
+        <PostTitle>{post.title}</PostTitle>
+        <PostDescription>
+            {post.content}
+        </PostDescription>
       </ColDiv>
     </Container>
   );
 };
 
-export default InfoPostItem;
+export default NoticePostItem;
 
 const Container = styled.div`
-  cursor: pointer;
+  cursor:pointer;
   display: flex;
   padding: 8px;
   border-radius: 6px;

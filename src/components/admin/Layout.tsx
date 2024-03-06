@@ -73,6 +73,12 @@ const AdminLayout = (props: Props) => {
                 <ListItemText primary={"자료실"} />
             </ListItemButton>
         </ListItem>
+        <Divider />
+        <ListItem disablePadding sx={{cursor: "pointer"}} onClick={() => handlePage("/admin/create")}>
+            <ListItemButton>
+                <ListItemText primary={"글 쓰기"} />
+            </ListItemButton>
+        </ListItem>
         </List>
     </div>
     );
