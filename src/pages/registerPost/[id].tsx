@@ -92,29 +92,62 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     event.stopPropagation();
     setComment(event.target.value);
   };
+
+
+  
   const handleDownloadFile = async () => {
-    if(Boolean(user_id) === false) router.push("/signin");
-    else {
-      if(post.file.length === 1){
-        const { data, error } = await supabase
-        .storage
-        .from('POST')
-        // TODO: try add BASE_URL
-        .download(`/file/${post.id}/${post.file[0]}`);
-        if(error) console.error("FILE DOWNLOAD ERROR : ", error)
-        console.log(data)
+      const hiddenLink = document.createElement('a');
+      hiddenLink.style.visibility = 'hidden';
+      document.body.appendChild(hiddenLink);
+
+    if (!user_id) {
+      router.push("/signin");
+    } else {
+      if (post.file.length === 1) {
+        const filePath = post.file[0].split("/").at(-1);
+        const { data } = await supabase
+          .storage
+          .from('POST')
+          .getPublicUrl(`file/${post.id}/${filePath}`);
+        if (data) {
+          try {
+            const response = await fetch(data.publicUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            hiddenLink.href = url;
+            hiddenLink.download = String(post.title).replaceAll(" ","_");
+            hiddenLink.click();
+          } catch (error) {
+            console.error('Error downloading file:', error);
+          }
+        }
       }
-      if(post.file.length > 1){
+      if (post.file.length > 1) {
         const result = await Promise.all(
-          Object.values(post.file).map((eachfile:any) => {
+          post.file.map(async (eachfile:any) => {
             const filePath = eachfile.split("/").at(-1);
-            return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
-          }),
+            const { data } = await supabase.storage.from('POST').getPublicUrl(`file/${post.id}/${filePath}`);
+            if (data) {
+              try {
+                const response = await fetch(data.publicUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                hiddenLink.href = url;
+                hiddenLink.download = String(post.title).replaceAll(" ","_");
+                hiddenLink.click();
+              } catch (error) {
+                console.error('Error downloading file:', error);
+              }
+            }
+          })
         );
       }
     }
   }
+  
 
+  
   return (
     <Container>
       {isAlertShown && 
@@ -151,8 +184,8 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         </LikeContainer>
         <FileButton onClick={handleDownloadFile} disabled={!hasFile}>
           <FolderOutlinedIcon/>
-          <p>{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
-        </FileButton>
+            <p>{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
+          </FileButton>
         <input id="file" type="file" className="hidden" />
       </ActionContainer>
         <CommentList commentList={commentList}
