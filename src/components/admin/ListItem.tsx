@@ -19,19 +19,11 @@ const AdminListItem = ({post, type ,isAccepted}:Props) => {
     const handleDetailPage = (id:string) => router.push(`/admin/${type}/${id}`) 
 
     return (
-        <Container onClick={() => handleDetailPage(post.id)}>
+        <div className='flex justify-between cursor-pointer border px-4 py-3 border-solid' onClick={() => handleDetailPage(post.id)}>
             <Item>{post.title}</Item>
             {type === "registerPost" && <p>{isAccepted ? "승인" : "미승인"}</p>}
-        </Container>
+        </div>
     )
 };
 
 export default AdminListItem;
-
-const Container = styled.div`
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 16px;
-    cursor: pointer;
-    border: 1px solid;
-`;

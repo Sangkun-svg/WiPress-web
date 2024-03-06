@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { supabase } from '@/utils/database';
 import { ImageSwiper } from '@/components';
 import { Button } from '@mui/material';
@@ -31,62 +30,18 @@ const AdminNoticePostDetail = ({post,post_id}:any) => {
     };
 
     return (
-        <Container>
-            <ContentContainer>
-                <Title>{post.title}</Title>
-                <SubTitle>{post.subtitle}</SubTitle>
-                <Description>{post.content}</Description>
+        <div className='w-full max-w-[600px] mx-auto my-0'>
+            <div className='w-full flex flex-col justify-center bg-[#f7f7fa] gap-[13px] pt-6 pb-7 px-4'>
+                <p className='text-[19px] not-italic font-semibold leading-[100%]'>{post.title}</p>
+                <p className='text-[#4a4a4a] text-[17px] not-italic font-medium leading-[100%]'>{post.subtitle}</p>
+                <p className='text-black text-[15px] not-italic font-normal leading-[170%]'>{post.content}</p>
                 {post.image && <ImageSwiper images={post.image}/>}
-            </ContentContainer>
-            <ButtonContainer>
+            </div>
+            <div className='flex justify-end w-full gap-3 mt-3 mx-auto my-0'>
                 <Button variant="outlined" color="error" onClick={handleDelete}>삭제</Button>
-            </ButtonContainer>
-        </Container>
+            </div>
+        </div>
     )
 };
 
 export default AdminNoticePostDetail;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    justify-content: end;
-    width: 100%;
-    margin: 0 auto;
-    gap: 12px;
-    margin-top : 12px;
-  `;
-const Container = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-`;
-const ContentContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 24px 16px 28px;
-  background: #f7f7fa;
-  gap: 13px;
-`;
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
-const SubTitle = styled.p`
-  color: #4a4a4a;
-  font-size: 17px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%;
-`;
-const Description = styled.text`
-  color: #000;
-  font-size: 15px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 170%;
-`;

@@ -1,7 +1,4 @@
-import BasicPostItem from "../components/PostItems/BasicPostItem";
-import styled from "styled-components";
-import BottomNav from "@/components/BottomNav";
-import NavBar from "@/components/NavBar";
+import { NavBar ,BottomNav,BasicPostItem} from "@/components";
 import { authOptions } from "../pages/api/auth/[...nextauth]"
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
@@ -32,13 +29,13 @@ export const getServerSideProps = async (context:any) => {
 
 const MyPickPage = (props:any) => {
   return (
-    <Wrapper>
-      <NavBar title="나의 Pick 모아보기" />
-      <Container>
-        <RowDiv>
-          <Title>Pick 리스트</Title>
-        </RowDiv>
-        <PostItemList>
+    <div className='max-w-[600px] flex justify-center items-center flex-col mx-auto my-0 px-4 py-0'>
+      <NavBar title="나의 Pick 모아보기" backgroundColor={"#fff"}/>
+      <div className='w-full flex flex-col mt-[26px] mb-4 mb-[60px] mx-0'>
+        <div className='w-full flex justify-between items-baseline mb-3.5'>
+          <p className='text-[19px] not-italic font-semibold leading-[100%]'>Pick 리스트</p>
+        </div>
+        <div className="flex flex-col gap-3.5">
           {props.myPick.map((el:any) => {
             return <BasicPostItem 
                     key={el.user_post_pick_id} 
@@ -51,50 +48,11 @@ const MyPickPage = (props:any) => {
                     Pick={[{user_id: el.user_id}]}
                   />
           })}
-        </PostItemList>
-      </Container>
+        </div>
+      </div>
       <BottomNav />
-    </Wrapper>
+    </div>
   );
 };
 
 export default MyPickPage;
-
-const Wrapper = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 0 16px;
-`;
-const Container = styled.div`
-  width: 100%;
-  margin: 26px 0 16px;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 60px; /* Adjust as needed */
-`;
-
-const PostItemList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-const RowDiv = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 14px;
-`;
-
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
