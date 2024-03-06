@@ -35,6 +35,7 @@ const SignInPage = () => {
     phoneNumber: string;
     password: string;
   }) => {
+    console.log({data})
     setIsLoading(true);
     const res = await signIn("credentials", {
       phoneNumber: data.phoneNumber,
@@ -60,14 +61,16 @@ const SignInPage = () => {
         }
         <Image alt="Logo" src={"/WiPressLogo.webp"} width={210} height={130} />
         <form className="w-full mt-12 flex justify-center items-center flex-col" onSubmit={handleSubmit(onSubmit)} style={{gap: 14}}>
-          <Input
-            placeholder="아이디를 입력해 주세요"
-            {...register("phoneNumber")}
+          <input 
+              className='w-full max-h-50px rounded-6px px-[16px] py-[18px]'
+              placeholder="아이디를 입력해 주세요"
+              {...register("phoneNumber")}
           />
-          <Input
-            placeholder="비밀번호를 입력해 주세요"
-            type={"password"}
-            {...register("password")}
+          <input 
+              className='w-full max-h-50px rounded-6px px-[16px] py-[18px]'
+              placeholder="비밀번호를 입력해 주세요"
+              type={"password"}
+              {...register("password")}
           />
           {isSigninFail && (
             <div className="leading-5 bg-neutral-50 p-5 rounded-lg">

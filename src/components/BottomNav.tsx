@@ -14,7 +14,8 @@ import { useSession } from "next-auth/react";
 
 const setCurrentTab = (pathname: string): number | undefined => {
   if (pathname === "/requestPost") return 1;
-  else if (pathname === "/my" || pathname === "/myPicks") return 2;
+  else if (pathname === "/my") return 2;
+  else if (pathname === "/myPicks") return 2;
   else if (pathname === "/admin") return 3;
   else return 0;
 };

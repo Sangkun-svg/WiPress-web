@@ -1,11 +1,9 @@
-import Layout from "../components/Layout";
-import styled from "styled-components";
+import { Layout, BasicPostItem } from "@/components";
 import SearchIcon from "@mui/icons-material/Search";
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { useRouter } from "next/navigation";
 import { IconButton } from "@mui/material";
-import BasicPostItem from "@/components/PostItems/BasicPostItem";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 export const getServerSideProps = async (context:any) => { 
@@ -36,51 +34,21 @@ const NoticePage = (props:any) => {
   console.log(props)
   return (
     <Layout>
-      <Container>
-        <RowDiv>
-          <Title>공지사항</Title>
-          <IconButton onClick={handleSearch}>
+      <div className="w-full flex flex-col mt-[26px] mb-4 mx-0">
+        <div className="w-full flex justify-between items-baseline mb-3.5">
+          <p className="text-[19px] not-italic font-semibold leading-[100%]">공지사항</p>
+          <IconButton onClick={handleSearch} style={{ color: '#0B834B' }} >
             <SearchIcon />
           </IconButton>
-        </RowDiv>
-        <PostItemList>
-          {props.data.map((el:any) => {
-                if(!el) return <></>;
-                return <BasicPostItem key={el.id} user_id={props.user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
+        </div>
+        <div className="flex flex-col gap-3.5">
+          {props.data.filter((el:any) => el).map((el:any) => {
+              return <BasicPostItem key={el.id} user_id={props.user_id} id={el.id} title={el.title} picks={el.picks} content={el.content} images={el.image} Pick={el.Pick} />
           })}
-        </PostItemList>
-      </Container>
+        </div>
+      </div>
     </Layout>
   );
 };
 
 export default NoticePage;
-
-const Container = styled.div`
-  width: 100%;
-  margin: 26px 0 16px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const PostItemList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-const RowDiv = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 14px;
-`;
-
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;

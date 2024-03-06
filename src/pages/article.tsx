@@ -1,6 +1,4 @@
-import Layout from "../components/Layout";
-import ArticlePostItem from "../components/PostItems/ArticlePostItem";
-import styled from "styled-components";
+import { Layout, ArticlePostItem } from "@/components";
 import SearchIcon from "@mui/icons-material/Search";
 import { supabase } from "@/utils/database";
 import { useRouter } from "next/navigation";
@@ -27,50 +25,21 @@ const ArticlePage = (props:any) => {
   const handleSearch = () => router.push("/search")
   return (
     <Layout>
-      <Container>
-        <RowDiv>
-          <Title>기사 게시판</Title>
-          <IconButton onClick={handleSearch}>
+      <div className="w-full flex flex-col mt-[26px] mb-4 mx-0">
+        <div className="w-full flex justify-between items-baseline mb-3.5">
+          <p className="text-[19px] not-italic font-semibold leading-[100%]">기사 게시판</p>
+          <IconButton onClick={handleSearch} style={{ color: '#0B834B' }} >
             <SearchIcon />
           </IconButton>
-        </RowDiv>
-        <PostItemList>
+        </div>
+        <div className="flex flex-col gap-3.5">
           {props.data.map((el:any) => {
             return <ArticlePostItem key={el.link} title={el.title} link={el.link}/>
           })}
-        </PostItemList>
-      </Container>
+        </div>
+      </div>
     </Layout>
   );
 };
 
 export default ArticlePage;
-
-const Container = styled.div`
-  width: 100%;
-  margin: 26px 0 16px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const PostItemList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-const RowDiv = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 14px;
-`;
-
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
