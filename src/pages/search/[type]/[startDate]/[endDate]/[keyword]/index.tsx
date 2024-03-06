@@ -10,7 +10,6 @@ export const getServerSideProps = async (context: any) => {
     const session = await getServerSession(req, res, authOptions);
   
       let result = {};
-    // TODO: type, startDate, endDate, keyword 이 4개중에 값이 없는게 있으면 어케함?
       if (type === "recentDates") {
         const { data, error } = await supabase
           .from("Post")

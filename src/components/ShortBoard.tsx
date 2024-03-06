@@ -10,9 +10,12 @@ interface Props {
 
 const ShortBoard = ({ label, type, data }: Props) => {
   const router = useRouter();
-  const handleMoveDetail = (id: string) => {
-    router.push(`${type}/${id}`)
-  }
+
+  const handleMoveDetail = (id: string, link?: string) => {
+    if (type === "article" && link) router.push(link);
+    if (type !== "article") router.push(`${type}/${id}`);
+  };  
+
   return (
     <div className="w-full flex items-center justify-center flex-col">
       <div className="w-full flex justify-between items-baseline">
@@ -24,7 +27,7 @@ const ShortBoard = ({ label, type, data }: Props) => {
           const post = type === "registerPost" ? el.Post : el;
           if(!post) return null;
           return (
-            <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id)} >
+            <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id , el.link)} >
               <p className="text-[15px] not-italic font-light leading-[100%] tracking-[0.15px]">{post?.title}</p>
             </PostPreviewItem>
           )

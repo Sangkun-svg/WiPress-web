@@ -7,7 +7,6 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { signOut } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
-import { useRef } from "react";
 import { authOptions } from "../api/auth/[...nextauth]";
 
 export const getServerSideProps = async (context:any) => {
@@ -36,7 +35,6 @@ export const getServerSideProps = async (context:any) => {
 
 const MyPage = ({user}: any) => {
   const router = useRouter();
-  const modalRef = useRef(null);
   const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!
 
   const handleMove = (path: string) => router.push(path);
@@ -56,7 +54,7 @@ const MyPage = ({user}: any) => {
       <p className="text-[19px] not-italic font-semibold leading-[100%]">마이페이지</p>
       <div className="flex justify-between mt-[26px] mb-3.5 mx-0">
         <div className="flex">
-          <Avatar style={{ width: "84px", height: "84px" }} src={user.profile ? BASE_URL + user.profile : ""}/>
+        <Avatar style={{ width: "84px", height: "84px" }} src={user.profile ? BASE_URL + user.profile : ""}/>
           <div className="flex flex-col justify-center gap-1.5 ml-3">
             <p className="text-lg not-italic font-medium leading-[100%]">{user.name}</p>
             <p className="text-[#4a4a4a] text-[15px] not-italic font-normal leading-[100%]">{user.party}기자</p>

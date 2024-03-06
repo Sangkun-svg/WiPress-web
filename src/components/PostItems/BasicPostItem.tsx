@@ -68,7 +68,7 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
         </div>
       </div>
       <IconButton onClick={handleClickPick} sx={{width: "40px", height: "44.5px"}}>
-        <TouchAppOutlinedIcon style={{ color : isPicked ? "#0B834B" : "#D4D4D4" }}/>
+        <TouchAppOutlinedIcon style={{ color : isPickedStatus ? "#0B834B" : "#D4D4D4" }}/>
       </IconButton>
     </div>
   );

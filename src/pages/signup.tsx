@@ -169,7 +169,7 @@ const SignUpPage = () => {
               open={openPostModal}
               onClick={handleModal}
             >
-              <DaumPostcodeEmbed onComplete={handleComplete} />
+              <DaumPostcodeEmbed style={{maxWidth: "600px"}} onComplete={handleComplete} />
             </Backdrop>
           )}
         <input className="w-full max-h-[50px] px-4 py-[18px] rounded-md;"

@@ -3,9 +3,15 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { NavBar } from '@/components';
-import { InputHTMLAttributes, useState } from "react";
-import { Checkbox } from "@mui/material";
+import { InputHTMLAttributes, useEffect, useRef, useState } from "react";
+import { Avatar, Checkbox } from "@mui/material";
 import { useRouter } from "next/navigation";
+
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label:string; 
+  registerType:string;
+}
 
 export const getServerSideProps = async (context:any) => { 
     const req = context.req as any;
@@ -33,33 +39,74 @@ export const getServerSideProps = async (context:any) => {
 
 const UpdateUser = ({ user }:any) => {
     const router = useRouter();
+    const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!
     const { register, handleSubmit } = useForm();
     const [checked, setChecked] = useState(user.agreePushAlarm);
+    const profileRef = useRef<HTMLInputElement>(null);
+    const [profile, setProfile] = useState<any>();
+    const [profilePreview, setProfilePreview] = useState<any>(user.profile ? BASE_URL + user.profile : "");
+  
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setChecked(event.target.checked);
+    }
+    const handleOpenFileSelector = (event: React.MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      profileRef.current!.click();
     };
-      const onSubmit: SubmitHandler<any> = async (data) => {
-        const { data:updatedUser, error } = await supabase
-        .from('User')
-        .update({ 
-            phoneNumber: data.phoneNumber,
-            name: data.name,
-            birth: data.birth,
-            party: data.party,
-            position: data.position,
-            agreePushAlarm: data.agreePushAlarm,
-         })
-        .eq('id', user.id)
-        .select();
-        if(error) throw new Error(error.message);
-        router.push("/my")
-    }
+    const selectFile = async (event: React.ChangeEvent<any>) => {
+      setProfile(event.target.files);
+      encodeFileToBase64(event.target.files[0])
+    };
+    const encodeFileToBase64 = (fileBlob:any) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(fileBlob);
+      return new Promise((resolve) => {
+        reader.onload = () => {
+          setProfilePreview(reader.result);
+        };
+      });
+    };
+    const uploadFile = async (file:any) => {
+      if (!file) return null;
+      if(!user.profile){
+        const { data:uploadUserProfile, error:uploadUserProfileError } = await supabase.storage
+        .from("USER")
+        .upload(user.id, file[0])
+        if(uploadUserProfileError) {
+          console.error(uploadUserProfileError.message)
+          throw new Error(uploadUserProfileError.message)
+        }
+        return (uploadUserProfile as any).fullPath
+      }else {
+        const { data:updateUserProfile, error:updateUserProfileError } = await supabase.storage
+        .from("USER")
+        .update( user.profile,file[0]);
+        if(updateUserProfileError) {
+          return console.error(updateUserProfileError)
+        }
+        return (updateUserProfile as any).fullPath
+      }
+    };
 
-    interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-      label:string; 
-      registerType:string;
+    const onSubmit: SubmitHandler<any> = async (data) => {
+      
+      const profilePath = await uploadFile(profile);
+      const { data:updatedUser, error } = await supabase
+      .from('User')
+      .update({ 
+          phoneNumber: data.phoneNumber,
+          name: data.name,
+          birth: data.birth,
+          party: data.party,
+          position: data.position,
+          agreePushAlarm: data.agreePushAlarm,
+          profile : profilePath
+        })
+      .eq('id', user.id)
+      .select();
+      if(error) throw new Error(error.message);
+      router.push("/my")
     }
-  
   
     const InputWithLabel = ({label,registerType,...rest}:InputProps) => {
       return (
@@ -73,6 +120,10 @@ const UpdateUser = ({ user }:any) => {
     return <div className="h-screen max-w-[600px] mx-auto my-0 bg-[#F0F6F4]">
         <NavBar title={"정보 수정"}/>
         <form className="flex justify-center items-center flex-col gap-[30px] pt-[18px] pb-3 px-4" onSubmit={handleSubmit(onSubmit)}>
+          <button type="button" onClick={handleOpenFileSelector}>
+            <Avatar style={{ width: "84px", height: "84px" }} src={profilePreview}/>
+          </button>
+          <input ref={profileRef} type="file" hidden accept="image/*" onChange={selectFile} />
           <InputWithLabel
             label="휴대폰 번호"
             maxLength={11}

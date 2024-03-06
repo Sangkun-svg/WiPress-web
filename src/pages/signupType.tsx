@@ -13,8 +13,8 @@ const SignUpTypePage = () => {
   return (
     <div className="h-dvh bg-[#F0F6F4]">
       <NavBar/>
-      <Image style={{marginTop: "108px"}} alt="welcome" src={"/wipressWC.webp"} width={390} height={81} />
-      <div className='w-full max-w-[600px] flex justify-center items-center flex-col mx-auto my-0 px-4 py-0'>
+      <div className='w-full max-w-[600px] flex justify-center flex-col mx-auto my-0 px-4 py-0'>
+        <Image style={{marginTop: "108px"}} alt="welcome" src={"/wipressWC.webp"} width={390} height={81} />
         <div className="w-full mt-[24px] mb-[32px]">
           <p className="text-lg not-italic font-normal leading-[170%]">회원가입 종류를 선택해주세요 :)</p>
         </div>

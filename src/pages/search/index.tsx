@@ -5,20 +5,19 @@ import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { Divider,Select,MenuItem,IconButton } from '@mui/material';
 import SearchIcon from "@mui/icons-material/Search";
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-
-dayjs.extend(relativeTime);
-dayjs.locale('ko');
 
 const Search = () => {
     const router = useRouter();
     const filterType = ["orderOfPicks","recentDates","orderOfLikes","myPicks"] as const
     const [type, setType] = useState<typeof filterType[number]>("orderOfPicks");
     const [keyword, setKeyword] = useState<string>("");
-    const [startDate , setStartDate] = useState<string>("");
-    const [endDate , setEndDate] = useState<string>("");
-    const handleMoveToResult = () => router.push(`search/${type}/${startDate}/${endDate}/${keyword}`)
+    const [startDate , setStartDate] = useState<string>(dayjs().add(9, "h").toISOString());
+    const [endDate , setEndDate] = useState<string>(dayjs().add(9, "h").toISOString());
+    const handleMoveToResult = () => {
+      if(!keyword) return;
+      router.push(`search/${type}/${startDate}/${endDate}/${keyword}`)
+    }
     const handleKeyword = (event: ChangeEvent<HTMLInputElement>) => {
       setKeyword(event.target.value);
     };
@@ -33,16 +32,16 @@ const Search = () => {
       const endDate = dayjs(date).toISOString();
       setEndDate(endDate);
     };
-
+    
     return <div className='w-full max-w-[600px] bg-[#F0F6F4] mx-auto my-0 h-screen'>
       <NavBar title={"검색"} />
       <div className='flex flex-col mx-auto my-0 pt-2 pb-0 px-4'>
-        <div className='flex mb-[18px]' >
-          <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' value={keyword} onChange={handleKeyword} placeholder='검색어를 입력해 주세요'/>
-          <IconButton onClick={handleMoveToResult}>
+        <form className='flex mb-[18px]' >
+          <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' value={keyword} onChange={handleKeyword} placeholder='검색어를 입력해 주세요' required/>
+          <IconButton onClick={handleMoveToResult} type="submit">
             <SearchIcon style={{ color: '#0B834B' }} />
           </IconButton>
-        </div>
+        </form>
         <CustomSelect
           value={type}
           onChange={handleChange}
