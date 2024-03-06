@@ -1,17 +1,7 @@
-import styled from 'styled-components';
 import { getServerSession } from "next-auth";
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { supabase } from "@/utils/database";
-import NavBar from '@/components/NavBar';
-import { title } from 'process';
-import BasicPostItem from '@/components/PostItems/BasicPostItem';
-
-type Parmas = {
-    type : string
-    startDate : string
-    endDate : string
-    keyword : string
-}
+import { NavBar, BasicPostItem} from '@/components';
 
 export const getServerSideProps = async (context: any) => {
     const { type, startDate, endDate, keyword } = context.query;
@@ -81,10 +71,10 @@ export const getServerSideProps = async (context: any) => {
 
 const SearchResult = (props:any) => {
     return (
-      <Wrapper>
-        <NavBar title={"검색 결과"}/>
-        <Container>
-          <PostItemList>
+      <div className='max-w-[600px] flex justify-center items-center flex-col mx-auto my-0 px-4 py-0'>
+        <NavBar title={"검색 결과"} backgroundColor={"#fff"}/>
+        <div className='w-full flex flex-col mt-[26px] mb-4 mx-0'>
+          <div className='flex flex-col gap-3.5'>
           {props.type !== "myPicks" && props.result.map((el:any) => {
             return <BasicPostItem 
                       key={el.id}          
@@ -111,32 +101,10 @@ const SearchResult = (props:any) => {
                 Pick={[{user_id: el.user_id}]}
               />
             ))}
-          </PostItemList>
-        </Container>
-      </Wrapper>
+          </div>
+        </div>
+      </div>
     )
 };
 
 export default SearchResult;
-
-const Wrapper = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 0 16px;
-`;
-const Container = styled.div`
-  width: 100%;
-  margin: 26px 0 16px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const PostItemList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;

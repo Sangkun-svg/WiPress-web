@@ -1,6 +1,6 @@
 import { useState, ChangeEvent } from 'react';
 import styled from 'styled-components';
-import NavBar from "@/components/NavBar";
+import { NavBar } from "@/components";
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
 import { Divider,Select,MenuItem,IconButton } from '@mui/material';
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,13 +34,13 @@ const Search = () => {
       setEndDate(endDate);
     };
 
-    return <Container>
+    return <div className='w-full max-w-[600px] bg-[#F0F6F4] mx-auto my-0 h-screen'>
       <NavBar title={"검색"} />
-      <FilterBox>
-        <div style={{display: "flex", marginBottom: "18px"}}>
-          <Input value={keyword} onChange={handleKeyword} placeholder='검색어를 입력해 주세요'/>
+      <div className='flex flex-col mx-auto my-0 pt-2 pb-0 px-4'>
+        <div className='flex mb-[18px]' >
+          <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' value={keyword} onChange={handleKeyword} placeholder='검색어를 입력해 주세요'/>
           <IconButton onClick={handleMoveToResult}>
-            <SearchIcon />
+            <SearchIcon style={{ color: '#0B834B' }} />
           </IconButton>
         </div>
         <CustomSelect
@@ -52,10 +52,11 @@ const Search = () => {
           <MenuItem divider value={"orderOfLikes"}>좋아요 순</MenuItem>
           <MenuItem value={"myPicks"}>나의 Pick</MenuItem>
         </CustomSelect>
-      <DatePickerContainer>
-        <DatePickerTypo>날짜 필터링</DatePickerTypo>
-        <DatePickerItem>
-          <Typo>시작</Typo>
+
+      <div className='w-full mt-6'>
+        <p className='text-base not-italic font-medium leading-[100%] mb-3.5'>날짜 필터링</p>
+        <div className='w-full h-[53px] flex items-center justify-between mx-0 my-auto bg-white pl-[20px] pr-2.5 rounded-t-md'>
+          <p className='text-center text-base not-italic font-normal leading-[100%]'>시작</p>
           <MobileDatePicker 
            onChange={handleStartDate}
            format={"YYYY.MM.DD"}
@@ -68,13 +69,15 @@ const Search = () => {
               "& .MuiInputBase-input": {
                 width: "124px",
                 padding: "10px 22px",
+                background: "#F9F9FA",
+                border: "none"
               }
             }
            }}/>
-        </DatePickerItem>
+        </div>
         <Divider />
-        <DatePickerItem>
-          <Typo>종료</Typo>
+        <div className='w-full h-[53px] flex items-center justify-between mx-0 my-auto bg-white pl-[20px] pr-2.5 rounded-bl-md'>
+          <p className='text-center text-base not-italic font-normal leading-[100%]'>종료</p>
           <MobileDatePicker 
            onChange={handleEndDate}
            format={"YYYY.MM.DD"}
@@ -87,71 +90,27 @@ const Search = () => {
               "& .MuiInputBase-input": {
                 width: "124px",
                 padding: "10px 22px",
+                background: "#F9F9FA",
+                border: "none"
               }
             }
            }}/>
-        </DatePickerItem>
-      </DatePickerContainer>
-      </FilterBox>
-    </Container>
+        </div>
+      </div>
+      </div>
+    </div>
 };
 
 export default Search;
 
-const Container = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-`;
-const FilterBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-  padding: 8px 16px 0;
-`;
 const CustomSelect = styled(Select)`
   max-width: 134px;
   padding: 6px 10px;
+  background-color: #fff;
   .MuiSelect-select {
     padding: 0;
   }
+  .MuiInputBase-input{
+    color: #0B834B;
+  }
 `
-const DatePickerContainer = styled.div`
-  margin-top: 24px;
-  width: 100%;
-`
-
-const DatePickerItem = styled.div`
-  width: 100%;
-  height: 53px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: auto 0;
-`;
-
-const DatePickerTypo = styled.p`
-  color: #000;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%;
-  margin-bottom: 14px;
-`;
-
-const Typo = styled.p`
-  color: #000;
-  text-align: center;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  max-height: 50px;
-  border-radius: 6px;
-  padding: 18px 16px;
-  background-color: #f7f7fa;
-`;
