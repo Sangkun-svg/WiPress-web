@@ -1,26 +1,45 @@
 import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import DaumPostcodeEmbed from "react-daum-postcode";
-import { Backdrop, Checkbox } from "@mui/material";
+import { Backdrop, Checkbox, CircularProgress } from "@mui/material";
 import NavBar from "../components/NavBar";
+import axios from "axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../pages/api/auth/[...nextauth]"
+
+export const getServerSideProps = async (context:any) => { 
+  const req = context.req as any;
+  const res = context.res as any;
+  const session = await getServerSession(req, res, authOptions)
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+ return { props: {} } 
+}
 
 const SignUpPage = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const signUpType = searchParams.get("type");
   const { register, handleSubmit } = useForm();
   const [address, setAddress] = useState<string>("");
   const [openPostModal, setOpenPostModal] = useState<boolean>(false);
   const [checked, setChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAlreadyRegisterd, setIsAlreadyRegisterd] = useState<boolean>(false);
+  const [isFailed, setIsFailed] = useState<boolean>(false);
+
   const handleModal = () => setOpenPostModal((prev: boolean) => !prev);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
-  };
-  const onSubmit: SubmitHandler<any> = (data) => {
-    // ...signUpType
-    // ...checked
-    console.log(data);
   };
   const handleComplete = (data: any) => {
     let fullAddress = data.address;
@@ -38,30 +57,80 @@ const SignUpPage = () => {
     setOpenPostModal(false);
   };
 
+
+  const onSubmit = async (data:any) => {
+    try {
+      setIsLoading(true);
+      const result = await axios.post("/api/signup", {
+        data: {
+          ...data,
+          address: address,
+          agreePushAlarm: checked,
+          type: signUpType,
+        },
+      });
+      if (result.status === 206) {
+        setIsAlreadyRegisterd(true)
+      } else if (result.status === 207) {
+        setIsFailed(true)
+      }else {
+        setIsLoading(false);
+        router.push("/signin");
+      }
+    } catch (error) {
+      
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
-    <>
-      <NavBar title={"회원가입"} />
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <FormElement>
-          <Label>이름</Label>
-          <Input placeholder="ex. 홍길동" {...register("name")} />
-        </FormElement>
+        <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <CircularProgress/>
+        </Backdrop>
+        <NavBar title={"회원가입"} />
         <FormElement>
           <Label>휴대폰 번호</Label>
           <Input
-            type="number"
             maxLength={11}
+            onKeyPress={(event:any) => {
+              if (!/[0-9]/.test(event.key)) {
+                event.preventDefault();
+              }
+            }}
             placeholder="ex. 010-0000-0000"
-            {...register("phoneNumber")}
+            {...register("phoneNumber",{ required: true })}
           />
+          {
+            isAlreadyRegisterd && <SigninFailBox>
+              <p>이미 가입된 번호입니다.</p>
+            </SigninFailBox>
+          }
+        </FormElement>
+        <FormElement>
+          <Label>비밀번호</Label>
+          <Input
+            placeholder="비밀번호를 입력해주세요"
+            {...register("password",{ required: true })}
+          />
+        </FormElement>
+        <FormElement>
+          <Label>이름</Label>
+          <Input placeholder="ex. 홍길동" {...register("name",{ required: true })} />
         </FormElement>
         <FormElement>
           <Label>생년월일</Label>
           <Input
-            type="number"
-            maxLength={8}
+            onKeyPress={(event:any) => {
+              if (!/[0-9]/.test(event.key)) {
+                event.preventDefault();
+              }
+            }}
             placeholder="ex. 1990-03-10"
-            {...register("birth")}
+            {...register("birth",{ required: true })}
           />
         </FormElement>
         <FormElement>
@@ -72,9 +141,12 @@ const SignUpPage = () => {
               value={address}
               style={{ width: "75%" }}
               placeholder="우편번호를 검색하세요"
-              {...register("address")}
             />
-            <Button style={{ width: "25%" }} onClick={handleModal}>
+            <Button
+              type="button"
+              style={{ width: "25%" }}
+              onClick={handleModal}
+            >
               <p>우편번호 검색</p>
             </Button>
           </div>
@@ -93,33 +165,49 @@ const SignUpPage = () => {
           )}
           <Input
             placeholder="상세주소를 입력하세요 (ex. 101호 101호)"
-            {...register("addressDetail")}
+            {...register("addressDetail",{ required: true })}
           />
         </FormElement>
         <FormElement>
           <Label>소속</Label>
-          <Input placeholder="ex. 00소속" {...register("party")} />
+          <Input placeholder="ex. 00소속" {...register("party",{ required: true })} />
         </FormElement>
         <FormElement>
           <Label>직책</Label>
-          <Input placeholder="ex. 00직책" {...register("position")} />
+          <Input placeholder="ex. 00직책" {...register("position",{ required: true })} />
         </FormElement>
         <div style={{ width: "100%", display: "flex", height: "24px" }}>
           <Checkbox
             size="small"
+            required={true}
             checked={checked}
             onChange={handleChange}
             inputProps={{ "aria-label": "controlled" }}
           />
           <p style={{ margin: 0 }}>앱 푸시 알람 수신에 동의합니다</p>
         </div>
+        {
+          isFailed && <SigninFailBox>
+            <p>회원가입에 실패했습니다. 다시 시도해주세요</p>
+          </SigninFailBox>
+        }
         <Button type="submit">
           <p>제출하기</p>
         </Button>
       </Form>
-    </>
   );
 };
+
+const SigninFailBox = styled.div`
+  border-radius: 8px;
+  padding: 4px 20px;
+  line-height: 20px;
+  background-color: #fafafa;
+  p {
+    font-size: 13px;
+    color:#e65f3e;
+  }
+`;
 
 const Form = styled.form`
   max-width: 600px;

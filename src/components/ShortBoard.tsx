@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 
 interface Props {
@@ -8,6 +9,10 @@ interface Props {
 }
 
 const ShortBoard = ({ label, type, data }: Props) => {
+  const router = useRouter();
+  const handleMoveDetail = (id: string) => {
+    router.push(`${type}/${id}`)
+  }
   return (
     <Container>
       <RowDiv>
@@ -15,11 +20,11 @@ const ShortBoard = ({ label, type, data }: Props) => {
         <AllLink href={`/${type}`}>전체보기</AllLink>
       </RowDiv>
       <PostPreviewList>
-        {/* TODO: data.map and clickable && add onClick action */}
-        <PostPreviewItem>동해물과 백두산이 마르고 닳도록</PostPreviewItem>
-        <PostPreviewItem>동해물과 백두산이 마르고 닳도록</PostPreviewItem>
-        <PostPreviewItem>동해물과 백두산이 마르고 닳도록</PostPreviewItem>
-        <PostPreviewItem>동해물과 백두산이 마르고 닳도록</PostPreviewItem>
+        {data?.map((el:any) => {
+          const post = type === "registerPost" ? el.Post : el;
+          if(!post) return null;
+          return <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id)}>{post?.title}</PostPreviewItem>
+        })}
       </PostPreviewList>
     </Container>
   );
@@ -28,8 +33,7 @@ const ShortBoard = ({ label, type, data }: Props) => {
 export default ShortBoard;
 
 const Container = styled.div`
-  /* max-width: 358px; */
-  width: calc(100% - 16px);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,10 +55,10 @@ const PostPreviewList = styled.div`
 `;
 
 const PostPreviewItem = styled.div`
+  cursor: pointer;
   width: 100%;
   display: flex;
   align-items: center;
-  min-width: 358px;
   min-height: 46px;
   &:not(:last-child) {
     border-bottom: 1px solid #e5e5ea;

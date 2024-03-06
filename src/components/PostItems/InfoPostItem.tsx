@@ -1,18 +1,21 @@
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 
-interface Props {}
+interface Props {
+  id: string;
+  title: string;
+  content: string;
+}
 
-const InfoPostItem = () => {
+const InfoPostItem = ({id,title,content}:Props) => {
+  const router = useRouter();
+  const handleClick = () => router.push("/info/" + id)
   return (
-    <Container>
+    <Container onClick={handleClick}>
       <ColDiv>
-        <PostTitle>게시판 글 제목입니다</PostTitle>
-        <PostDescription>
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화
-          삼천리 화려강산 대한사람 대한으로 길이 보전하세
-        </PostDescription>
+        <PostTitle>{title}</PostTitle>
+        <PostDescription>{content}</PostDescription>
       </ColDiv>
-      {/* TODO: Turn ON/OFF icon according data */}
     </Container>
   );
 };
@@ -20,10 +23,9 @@ const InfoPostItem = () => {
 export default InfoPostItem;
 
 const Container = styled.div`
+  cursor: pointer;
   display: flex;
   padding: 8px;
-  /* TODO: Change Padding Value accoding to has ImageURL  */
-  /* ImageURL ? 8px : 20px 18px */
   border-radius: 6px;
   background: #f7f7fa;
   gap: 10px;

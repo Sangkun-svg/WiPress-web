@@ -1,24 +1,44 @@
+import { supabase } from "@/utils/database";
 import Layout from "../components/Layout";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import InfoPostItem from "../components/PostItems/InfoPostItem";
+import { useRouter } from "next/navigation";
+import { IconButton } from "@mui/material";
 
-interface Props {}
+export const getServerSideProps = async () => { 
+  const { data, error } = await supabase
+  .from("Post")
+  .select("*")
+  .eq("type", "info")
+  .order("created_at", {ascending: false});
+  
+  if(error) throw new Error(error.message);
+  
+  return {
+    props: {
+      data: data,
+    }
+  }
+}
+const InfoPage = (props:any) => {
+  console.log(props)
+  const router = useRouter();
+  const handleSearch = () => router.push("/search")
 
-const InfoPage = () => {
   return (
     <Layout>
       <Container>
         <RowDiv>
           <Title>여론분석 게시판</Title>
-          <SearchIcon />
+          <IconButton onClick={handleSearch}>
+            <SearchIcon />
+          </IconButton>
         </RowDiv>
-        {/* TODO: Implement OnClick event and search Page */}
         <PostItemList>
-          <InfoPostItem />
-          <InfoPostItem />
-          <InfoPostItem />
-          <InfoPostItem />
+          {props.data.map((el:any) => {
+            return <InfoPostItem key={el.id} id={el.id} title={el.title} content={el.content} />
+          })}
         </PostItemList>
       </Container>
     </Layout>

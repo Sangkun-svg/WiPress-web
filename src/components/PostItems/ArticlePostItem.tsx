@@ -1,15 +1,20 @@
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 
-interface Props {}
+interface Props {
+  title: string;
+  link: string
+}
 
-const ArticlePostItem = () => {
+const ArticlePostItem = ({title, link}:Props) => {
+  const router = useRouter()
+  const handleMoveToArticle = () => router.push(link);
+
   return (
-    <Container>
+    <Container onClick={handleMoveToArticle}>
       <ColDiv>
-        <PostTitle>게시판 글 제목입니다</PostTitle>
-        <PostDescription>
-          https://www.youtube.com/watch?v=nJMt2-XYN5E
-        </PostDescription>
+        <PostTitle>{title}</PostTitle>
+        <PostDescription>{link}</PostDescription>
       </ColDiv>
     </Container>
   );
@@ -18,6 +23,7 @@ const ArticlePostItem = () => {
 export default ArticlePostItem;
 
 const Container = styled.div`
+  cursor: pointer;
   display: flex;
   padding: 8px;
   border-radius: 6px;
