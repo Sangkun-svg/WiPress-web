@@ -1,11 +1,10 @@
-import Image from "next/image";
 import styled from "styled-components";
-import TouchAppOutlinedIcon from "@mui/icons-material/TouchAppOutlined";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from '@/utils/database';
-import IconButton from '@mui/material/IconButton';
-import { useState } from "react";
 import { CustomImage } from "@/components";
+import IconButton from '@mui/material/IconButton';
+import TouchAppOutlinedIcon from "@mui/icons-material/TouchAppOutlined";
 
 interface Props {
   id?:string;

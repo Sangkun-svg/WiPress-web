@@ -1,13 +1,15 @@
 import { useState } from "react";
-import MenuButton from "@mui/joy/MenuButton";
-import List from "@mui/joy/List";
-import ListItem from "@mui/joy/ListItem";
-import ListItemDecorator from "@mui/joy/ListItemDecorator";
-import Menu from "@mui/joy/Menu";
-import MenuItem from "@mui/joy/MenuItem";
+import{
+  MenuButton,
+  List,
+  ListItem,
+  ListItemDecorator,
+  Menu,
+  MenuItem,
+  Dropdown
+} from "@mui/joy";
 import ArrowRight from "@mui/icons-material/ArrowRight";
 import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
-import Dropdown from "@mui/joy/Dropdown";
 
 export default function DropdownMenu() {
   const SIZES = ["Pick 많은 순", "최근 날짜 순", "좋아요 순", "나의 Pick"];

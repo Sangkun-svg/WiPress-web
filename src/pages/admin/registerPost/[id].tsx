@@ -5,8 +5,6 @@ import { Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-interface Props {}
-
 export const getServerSideProps = async (context:any) => { 
     const id = context.query.id;
     const { data, error } = await supabase

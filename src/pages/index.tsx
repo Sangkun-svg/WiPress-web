@@ -5,7 +5,6 @@ import ShortBoard from "../components/ShortBoard";
 
 export const getServerSideProps = async () => { 
   try {
-    // const { data: registerPost, error: registerPostError } = await supabase.from("Post").select("*").eq("type", "registerPost").range(0, 3).order("created_at", { ascending: false });
     const { data: registerPost, error:registerPostError } = await supabase
     .from('AcceptedPost')
     .select(`*, Post (* , Pick( * ) )`)

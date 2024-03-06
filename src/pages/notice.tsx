@@ -1,7 +1,6 @@
 import Layout from "../components/Layout";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
-import NoticePostItem from "../components/PostItems/NoticePostItem";
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { useRouter } from "next/navigation";

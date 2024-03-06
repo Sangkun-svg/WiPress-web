@@ -5,8 +5,7 @@ import { supabase } from "@/utils/database";
 import NavBar from '@/components/NavBar';
 import styled from 'styled-components';
 import { useState } from "react";
-import { Backdrop, Checkbox } from "@mui/material";
-import DaumPostcodeEmbed from "react-daum-postcode";
+import { Checkbox } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 export const getServerSideProps = async (context:any) => { 

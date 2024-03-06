@@ -1,12 +1,11 @@
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import BottomNav from "../components/BottomNav";
-import CenteredTabs from "../components/Tabs";
+import { BottomNav ,Tabs} from "@/components";
 
 const Layout = ({ children }: PropsWithChildren) => {
   return (
     <Container>
-      <CenteredTabs />
+      <Tabs />
       <MainContent>{children}</MainContent>
       {/* TODO: Add Chanel Talk */}
       <BottomNav />

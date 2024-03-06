@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from '../../api/auth/[...nextauth]';
 import { supabase } from "@/utils/database";
-import { AdminListItem } from "@/components/admin";
-import AdminLayout from '../../../components/admin/Layout';
+import { AdminListItem,AdminLayout } from "@/components/admin";
 import { Stack } from "@mui/material";
 
 export const getServerSideProps = async (context:any) => {

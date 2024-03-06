@@ -1,6 +1,5 @@
 import { supabase } from '@/utils/database';
 import { Stack } from '@mui/material';
-import styled from 'styled-components';
 import { AdminLayout,AdminArticleListItem } from '@/components/admin';
 
 export const getServerSideProps = async () => { 
