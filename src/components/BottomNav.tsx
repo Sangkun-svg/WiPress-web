@@ -13,8 +13,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const setCurrentTab = (pathname: string): number | undefined => {
-  if (pathname === "/requestPost") return 1;
-  else if (pathname === "/my" || pathname === "/myPicks" || pathname === "/admin") return 2;
+  if (pathname === "/requestPost" ) return 1;
+  else if (pathname === "/my" || pathname === "/myPicks") return 2;
+  else if (pathname === "/admin") return 3;
   else return 0;
 };
 
@@ -25,19 +26,19 @@ const BottomNav = () => {
   const [value, setValue] = useState(0);
   const handleMoveBoard = () => {
     setValue(0);
-    // router.push("/")
+    router.push("/")
   };
   const handleMoveRequestPost = () => {
     setValue(1);
-    // router.push("/requestPost")
+    router.push("/requestPost")
   };
   const handleMoveMy = () => {
     setValue(2);
-    // router.push("/my")
+    router.push("/my")
   };
   const handleMoveAdmin = () => {
     setValue(3);
-    // router.push("/admin")
+    router.push("/admin")
   };
 
   const CustomBottomNavigationAction = muiStyled(BottomNavigationAction)`
@@ -101,7 +102,7 @@ const BottomNav = () => {
           onClick={handleMoveAdmin}
           icon={
             <AdminPanelSettingsIcon
-              style={{ color: value === 2 ? "#0B834B" : "#AEAEB2" }}
+              style={{ color: value === 3 ? "#0B834B" : "#AEAEB2" }}
             />
           }
         />

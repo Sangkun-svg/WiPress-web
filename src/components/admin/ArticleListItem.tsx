@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { supabase } from '../../utils/database';
 
-const Item = styled(Paper)(({ theme }) => ({
+const Item = styled(Paper)(() => ({
     textAlign: 'left',
     color: "#000",
     boxShadow: "none"
@@ -25,22 +25,13 @@ const AdminArticleListItem = ({post, type}:Props) => {
     }
 
     return (
-        <Container onClick={handleDetailPage}>
+        <div className='flex items-center justify-between cursor-pointer border px-4 py-3 border-solid' onClick={handleDetailPage}>
             <Item>{post.title}</Item>
             <IconButton onClick={handleDelete}>
                 <DeleteIcon/>
             </IconButton>
-        </Container>
+        </div>
     )
 };
 
 export default AdminArticleListItem;
-
-const Container = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    cursor: pointer;
-    border: 1px solid;
-`;
