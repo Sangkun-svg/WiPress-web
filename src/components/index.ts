@@ -10,4 +10,5 @@ export {default as ShortBoard}  from "./ShortBoard"
 // common
 
 export { default as Input }  from "./common/Input"
+export { default as InputWithLabel }  from "./common/InputWithLabel"
 export { default as NormalType }  from "./common/font/Normal"
