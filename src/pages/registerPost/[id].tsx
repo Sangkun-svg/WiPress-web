@@ -31,10 +31,10 @@ export const getServerSideProps = async (context:any) => {
 
   return { props: { post : Post![0], user_id: user_id, myPick: myPick , pickRegistors: PickRegistors![0].Pick} } 
 }
+
 const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
   const router = useRouter()
   const params = useParams<{ id: string }>();
-  const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!;
   const isLike = post.Like.some((el: { user_id: string }) => el.user_id === user_id);
   const isPicked = post.Pick.some((el: { user_id: string }) => el.user_id === user_id);
   const [isAlertShown, setIsAlertShown] = useState<boolean>(false);
@@ -79,7 +79,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
     if(Boolean(user_id) === false) router.push("/signin");
     try {
       const { data:newComment, error:newCommentError } = await supabase.from('Comment').insert([{ user_id: user_id ,post_id: params.id,content: comment },]).select("*,User(name,party)");
-      const { data:Post, error:PostError } = await supabase.from('Post').insert([{ title: post.title, subtitle: "",content: "",user_id: user_id,type:"article",link: newComment![0].content },]);
+      const { data, error:PostError } = await supabase.from('Post').insert([{ title: post.title, subtitle: "",content: "",user_id: user_id,type:"article",link: newComment![0].content },]);
       if(newCommentError) throw new Error(newCommentError.message) 
       if(PostError) throw new Error(PostError.message) 
       setCommentList(prev => [...prev, newComment![0]])
@@ -124,7 +124,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
         }
       }
       if (post.file.length > 1) {
-        const result = await Promise.all(
+        await Promise.all(
           post.file.map(async (eachfile:any) => {
             const filePath = eachfile.split("/").at(-1);
             const { data } = await supabase.storage.from('POST').getPublicUrl(`file/${post.id}/${filePath}`);
@@ -149,7 +149,7 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
 
   
   return (
-    <Container>
+    <div className="w-full max-w-[600px] mx-auto my-0">
       {isAlertShown && 
         <Fade 
           in={isAlertShown}
@@ -165,68 +165,64 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
           </Alert>
         </Fade>
       }
-      <NavBar title={"보도자료 게시글"} />
-      <ContentContainer>
-        <Title>{post.title}</Title>
-        <SubTitle>{post.subtitle}</SubTitle>
-        <Description>{post.content}</Description>
+      <NavBar title={"보도자료 게시글"} backgroundColor={"#fff"}/>
+      <div className="w-full flex flex-col justify-center bg-[#fff] gap-[13px] pt-6 pb-7 px-4">
+        <p className="text-[19px] not-italic font-semibold leading-[100%]">{post.title}</p>
+        <p className="text-[#4a4a4a] text-[17px] not-italic font-medium leading-[100%]">{post.subtitle}</p>
+        <p className="text-[15px] not-italic font-normal leading-[170%]">{post.content}</p>
         {post.image && <ImageSwiper images={post.image}/>}
-      </ContentContainer>
-      <ActionContainer>
-        <LikeContainer>
+      </div>
+      <div className="bg-[#f7f7fa] pt-6 pb-7">
+      <div className="flex items-center justify-between mb-[22px] mx-0 px-4 py-0">
+        <div className="flex items-center gap-2">
           <IconButton onClick={handleClickLike}>
-            {isLiked ? <FavoriteRoundedIcon/> :  <FavoriteBorder />}
+            {isLiked ? <FavoriteRoundedIcon style={{ color: "#0B834B"}}/> :  <FavoriteBorder />}
           </IconButton>
-          <FavoriteText>{likeCount}</FavoriteText>
+          <p className="text-[#303030] text-base not-italic font-normal leading-[100%] tracking-[0.16px]">{likeCount}</p>
           <IconButton onClick={handleClickShare} style={{ marginLeft: "24px" }} >
             <IosShareOutlinedIcon/>
           </IconButton>
-        </LikeContainer>
-        <FileButton onClick={handleDownloadFile} disabled={!hasFile}>
+        </div>
+        <IconButton className="flex w-[130px] justify-center items-center gap-2 bg-white px-4 py-2 rounded-md" onClick={handleDownloadFile} disabled={!hasFile}>
           <FolderOutlinedIcon/>
-            <p>{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
-          </FileButton>
+            <p className="text-[#303030] text-sm not-italic font-normal leading-[100%] tracking-[0.14px] whitespace-nowrap m-0">{hasFile ? "파일 열기" : "파일이 없습니다"}</p>
+          </IconButton>
         <input id="file" type="file" className="hidden" />
-      </ActionContainer>
+      </div>
         <CommentList commentList={commentList}
           comment={comment}
           isPickedStatus={isPickedStatus} 
           handleComment={handleComment}
           handleUploadComment={handleUploadComment}
-          />
-      <ReporterContainer>
+        />
+      </div>
+      <div className="flex flex-col justify-center gap-3 px-4 py-0 pt-7">
+        <p className="text-[15px] not-italic font-medium leading-[100%] mb-2.5">Pick한 기자</p>
         {/* TODO<Client>: Image size 84px 로 맞추기 */}
-        <CommentCount>Pick한 기자</CommentCount>
         {pickRegistors.map((el: any) => {
           const isWritten = post.Comment.some((comment: { user_id: string }) => comment.user_id === el.User.id);
           return (
-          <div style={{display: "flex", justifyContent: "space-between"}} key={el.user_post_pick_id}>
-          <ReporterItem>
-            {el?.User?.profile ? 
-              <CustomImage alt="user_profile" src={el.User.profile} width={84} height={84}/> :  
-              <div className="demoImage" style={{ width: "84px", height: "84px", borderRadius: "6px", background: "#F2F2F7", }} />
-            }
-            <ReporterTypoWrapper>
-              <ReporterTypo color="#000" fontSize="14px">
-                {el.User.name}
-              </ReporterTypo>
-              <ReporterTypo color="#4A4A4A" fontSize="13px">
-                {el.User.position}
-              </ReporterTypo>
-              <ReporterTypo color="#4A4A4A" fontSize="13px">
-                {el.User.party}
-              </ReporterTypo>
-            </ReporterTypoWrapper>
-          </ReporterItem>
-          <Chip>
-            <p>{isWritten ? "작성완료" : "미작성"}</p>
-          </Chip>
+          <div key={el.user_post_pick_id} className="flex justify-between">
+            <div className="flex">
+              {el?.User?.profile ? 
+                <CustomImage alt="user_profile" src={el.User.profile} width={84} height={84}/> :  
+                <div className="demoImage" style={{ width: "84px", height: "84px", borderRadius: "6px", background: "#F2F2F7", }} />
+              }
+              <div className="flex flex-col justify-center gap-1.5 ml-3">
+                <p className="text-sm not-italic font-normal leading-[100%]">{el.User.name}</p>
+                <p className="text-[13px] not-italic font-normal leading-[100%] text-[#4A4A4A]">{el.User.position}</p>
+                <p className="text-[13px] not-italic font-normal leading-[100%] text-[#4A4A4A]">{el.User.party}</p>
+              </div>
+            </div>
+          <div className="h-5 bg-[#F7F7FA] gap-2.5 px-1 py-[3px] rounded-[3px]">
+            <p className="text-[#0B834B] text-[13px] not-italic font-normal leading-[100%]">{isWritten ? "작성완료" : "미작성"}</p>
+          </div>
           </div>  
           )
         })}
-      </ReporterContainer>
-      <MyPickContainer>
-        <CommentCount>나의 Pick 현황</CommentCount>
+      </div>
+      <div className="w-full flex flex-col justify-center gap-3 mx-0 my-7 px-4 py-0">
+        <p className="text-[15px] not-italic font-medium leading-[100%] mb-2.5">나의 Pick 현황</p>
           {myPick.map((el:any) => {
               return <MyPickItem 
                 key={el.user_post_pick_id} 
@@ -238,18 +234,13 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
                 images={el.Post.image}
               />
           })}
-      </MyPickContainer>
-    </Container>
+      </div>
+    </div>
   );
 };
 
 export default RegisterPostDetail;
 
-const Container = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-`;
 
 const Chip = styled.div`
   height: 20px;
@@ -258,131 +249,6 @@ const Chip = styled.div`
   padding: 3px 4px;
   gap: 10px;
   p{
-    color: var(--Gray600, var(--Gray600, #636366));
-    font-size: 13px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 100%; /* 13px */
   }
 `;
 
-const ContentContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 24px 16px 28px;
-  background: #f7f7fa;
-  gap: 13px;
-`;
-const ActionContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  margin: 18px 0 22px;
-`;
-const LikeContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-const CommentCount = styled.p`
-  color: #000;
-  font-size: 15px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%; /* 15px */
-  margin-bottom: 10px;
-`;
-
-const ReporterContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 16px;
-`;
-
-const ReporterItem = styled.div`
-  display: flex;
-`;
-
-const ReporterTypoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  margin-left: 12px;
-`;
-
-const ReporterTypo = styled.p<{ color: string; fontSize: string }>`
-  color: ${(props) => props.color};
-  font-size: ${(props) => props.fontSize};
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-const MyPickContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 16px;
-  margin: 28px 0;
-`;
-
-const FileButton = styled(IconButton)`
-  display: flex;
-  width: 129px;
-  padding: 8px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  border-radius: 6px;
-  background: #f7f7fa;
-  p {
-    color: #303030;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 100%;
-    letter-spacing: 0.14px;
-    margin: 0;
-    white-space: nowrap;
-  }
-`;
-
-const FavoriteText = styled.p`
-  color: #303030;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0.16px;
-`;
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
-const SubTitle = styled.p`
-  color: #4a4a4a;
-  font-size: 17px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%;
-`;
-
-const Description = styled.text`
-  color: #000;
-  font-size: 15px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 170%;
-`;

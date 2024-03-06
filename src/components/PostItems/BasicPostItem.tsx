@@ -46,7 +46,7 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
   
   return (
     <div className="cursor-pointer flex justify-between items-center bg-[#f7f7fa] rounded-md" 
-      style={{ padding: !!images  ? "8px" : "20px 8px 18px 20px"}}
+      style={{ padding: images  ? "8px" : "20px 8px 18px 20px"}}
       onClick={handleDetailPage} 
     >
       <div className="flex gap-[10]">

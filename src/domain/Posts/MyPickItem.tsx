@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from '@/utils/database';
@@ -24,13 +23,11 @@ const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
       setIsPickedStatus(prevState => !prevState);
       try {
         if(isPickedStatus){
-          console.log({picks}, "picks - 1 :", picks - 1);
           await Promise.all([
             supabase.from('Pick').delete().eq('user_id', user_id).eq('post_id', id),
             supabase.from('Post').update({ picks: picks - 1 === 0 ? 0 : picks - 1 }).eq('id', id)
           ]);
         }else {
-          console.log({picks}, "picks + 1 :", picks + 1);
           await Promise.all([
             supabase.from('Pick').insert([{ user_id: user_id, post_id: id }]),
             supabase.from('Post').update({ picks: picks + 1 }).eq('id', id)
@@ -42,8 +39,8 @@ const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
     }
   
     return (
-        <Container onClick={handleDetailPage} padding={images ? "8px" : "20px 18px"}>
-          <div style={{display : "flex" , gap: 10}}>
+        <div className="cursor-pointer flex justify-between bg-[#f7f7fa] rounded-md" onClick={handleDetailPage} style={{ padding: images  ? "8px" : "20px 8px 18px 20px"}}>
+          <div className="flex gap-2.5">
           {images &&
             <CustomImage
               alt="thumbnail"
@@ -53,54 +50,21 @@ const MyPickItem = ({ user_id,id,title, content,picks, images }: Props) => {
               style={{ borderRadius: "6px" }}
             />
           }
-          <ColDiv>
-            <PostTitle>{title}</PostTitle>
-            <PostDescription>{content}</PostDescription>
-          </ColDiv>
+          <div className="flex flex-col justify-center gap-2.5">
+            <p className="text-[15px] not-italic font-medium leading-[100%]">{title}</p>
+            <p 
+              className="text-[#222] text-[13px] not-italic font-normal leading-[150%] overflow-hidden text-ellipsis"
+              style={{display: "-webkit-box", WebkitLineClamp: 2,lineClamp: 2, WebkitBoxOrient: "vertical"}}
+            >
+              {content}
+            </p>
+          </div>
           </div>
           <IconButton onClick={handleClickPick}>
-            <TouchAppOutlinedIcon color={isPickedStatus ? "inherit" : "disabled"}/>
+            <TouchAppOutlinedIcon style={{ color : isPickedStatus ? "#0B834B" : "#D4D4D4"}}/>
           </IconButton>
-        </Container>
+        </div>
       );
     };
     
     export default MyPickItem;
-    
-    const Container = styled.div<{padding: string}>`
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      padding: ${(props) => props.padding};
-      border-radius: 6px;
-      background: #f7f7fa;
-    `;
-    
-    const ColDiv = styled.div`
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 10px;
-    `;
-    
-    const PostTitle = styled.p`
-      color: #000;
-      font-size: 15px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 100%;
-    `;
-    const PostDescription = styled.p`
-      color: #222;
-      font-size: 13px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 150%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-    `;
-    
