@@ -1,7 +1,5 @@
 import { supabase } from "@/utils/database";
-import styled from "styled-components";
-import Layout from "../components/Layout";
-import ShortBoard from "../components/ShortBoard";
+import { Layout, ShortBoard } from "@/components";
 
 export const getServerSideProps = async () => { 
   try {
@@ -11,10 +9,10 @@ export const getServerSideProps = async () => {
     .eq('isAccepted', true)
     .eq('Post.type', 'registerPost')
     .order('created_at', { ascending: false });
-      const { data: article, error: articleError } = await supabase.from("Post").select("*").eq("type", "article").range(0, 3).order("created_at", { ascending: false });
+    const { data: article, error: articleError } = await supabase.from("Post").select("*").eq("type", "article").range(0, 3).order("created_at", { ascending: false });
     const { data: notice, error: noticeError } = await supabase.from("Post").select("*").eq("type", "notice").range(0, 3).order("created_at", { ascending: false });
     const { data: info, error: infoError } = await supabase.from("Post").select("*").eq("type", "info").range(0, 3).order("created_at", { ascending: false });
-    console.log({registerPost})
+
     if (registerPostError || articleError || noticeError || infoError) {
       throw new Error("데이터 가져오기 중에 오류가 발생했습니다.");
     }
@@ -36,24 +34,16 @@ export const getServerSideProps = async () => {
 
 
 const Home = (props: any) => {
-  console.log(props.posts)
   return (
     <Layout>
-      <Container>
+      <div className="w-full flex flex-col gap-[32px_0] mt-[26px] mb-4 mx-0">
         {props.posts.map((el:any) => {
           return <ShortBoard key={el.type} type={el.type} label={el.label} data={el.data}/>
         })}
-      </Container>
+      </div>
     </Layout>
   );
 };
 
 export default Home;
 
-const Container = styled.div`
-  width: 100%;
-  margin: 26px 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px 0;
-`;

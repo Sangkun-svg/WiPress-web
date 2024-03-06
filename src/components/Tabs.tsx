@@ -53,12 +53,12 @@ export default function CenteredTabs() {
       onChange={handleChange}
       sx={{
         "& .MuiTabs-flexContainer": {
-          gap: "10px",
+          gap: "18px",
         },
       }}
       TabIndicatorProps={{
         style: {
-          backgroundColor: "#000",
+          backgroundColor: "#0B834B",
         },
       }}
     >
@@ -68,6 +68,11 @@ export default function CenteredTabs() {
             label={el.label}
             key={el.label}
             style={{ minWidth: "60px", minHeight: "50px", padding: 0 }}
+            sx={{
+              "&.Mui-selected": {
+                color: "#0B834B"
+              }
+            }}
           />
         );
       })}

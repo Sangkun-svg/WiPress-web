@@ -34,7 +34,7 @@ const BottomNav = () => {
       font-size: 0.75rem;
     }
     .Mui-selected {
-      color: #303030;
+      color: #0B834B;
     }
   `;
 
@@ -56,7 +56,7 @@ const BottomNav = () => {
         onClick={handleMoveBoard}
         icon={
           <GridViewRoundedIcon
-            style={{ color: value === 0 ? "#000" : "#AEAEB2" }}
+            style={{ color: value === 0 ? "#0B834B" : "#AEAEB2" }}
           />
         }
       />
@@ -67,7 +67,7 @@ const BottomNav = () => {
           onClick={handleMoveAdmin}
           icon={
             <AdminPanelSettingsIcon
-              style={{ color: value === 3 ? "#000" : "#AEAEB2" }}
+              style={{ color: value === 3 ? "#0B834B" : "#AEAEB2" }}
             />
           }
         />
@@ -80,7 +80,7 @@ const BottomNav = () => {
           onClick={handleMoveRequestPost}
           icon={
             <AddBoxRoundedIcon
-              style={{ color: value === 1 ? "#000" : "#AEAEB2" }}
+              style={{ color: value === 1 ? "#0B834B" : "#AEAEB2" }}
             />
           }
         />
@@ -89,7 +89,7 @@ const BottomNav = () => {
         label="마이페이지"
         onClick={handleMoveMy}
         icon={
-          <PersonIcon style={{ color: value === 2 ? "#000" : "#AEAEB2" }} />
+          <PersonIcon style={{ color: value === 2 ? "#0B834B" : "#AEAEB2" }} />
         }
       />
     </CustomBottomNavigation>

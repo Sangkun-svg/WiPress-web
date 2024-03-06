@@ -14,45 +14,27 @@ const ShortBoard = ({ label, type, data }: Props) => {
     router.push(`${type}/${id}`)
   }
   return (
-    <Container>
-      <RowDiv>
-        <Title>{label} 게시판</Title>
-        <AllLink href={`/${type}`}>전체보기</AllLink>
-      </RowDiv>
-      <PostPreviewList>
+    <div className="w-full flex items-center justify-center flex-col">
+      <div className="w-full flex justify-between items-baseline">
+        <p className="text-[19px] not-italic font-semibold leading-[100%]">{label} 게시판</p>
+        <Link className="text-[#8e8e93] text-sm not-italic font-normal leading-[100%]" href={`/${type}`}>전체보기</Link>
+      </div>
+      <div className="w-full flex flex-col mt-1">
         {data?.map((el:any) => {
           const post = type === "registerPost" ? el.Post : el;
           if(!post) return null;
-          return <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id)}>{post?.title}</PostPreviewItem>
+          return (
+            <PostPreviewItem key={el.id} onClick={() => handleMoveDetail(post.id)} >
+              <p className="text-[15px] not-italic font-light leading-[100%] tracking-[0.15px]">{post?.title}</p>
+            </PostPreviewItem>
+          )
         })}
-      </PostPreviewList>
-    </Container>
+      </div>
+    </div>
   );
 };
 
 export default ShortBoard;
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-
-const RowDiv = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-`;
-
-const PostPreviewList = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 4px;
-`;
 
 const PostPreviewItem = styled.div`
   cursor: pointer;
@@ -63,28 +45,5 @@ const PostPreviewItem = styled.div`
   &:not(:last-child) {
     border-bottom: 1px solid #e5e5ea;
   }
-  p {
-    color: #000;
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 300;
-    line-height: 100%;
-    letter-spacing: 0.15px;
-  }
 `;
 
-const Title = styled.p`
-  color: #000;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%;
-`;
-
-const AllLink = styled(Link)`
-  color: #8e8e93;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
