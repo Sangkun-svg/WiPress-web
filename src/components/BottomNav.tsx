@@ -14,9 +14,7 @@ import { useSession } from "next-auth/react";
 
 const setCurrentTab = (pathname: string): number | undefined => {
   if (pathname === "/requestPost") return 1;
-  else if (pathname === "/my") return 2;
-  else if (pathname === "/myPicks") return 2;
-  else if (pathname === "/admin") return 3;
+  else if (pathname === "/my" || pathname === "/myPicks" || pathname === "/admin") return 2;
   else return 0;
 };
 
@@ -25,10 +23,22 @@ const BottomNav = () => {
   const session = useSession();
   const pathname = usePathname();
   const [value, setValue] = useState(0);
-  const handleMoveBoard = () => router.push("/");
-  const handleMoveRequestPost = () => router.push("/requestPost");
-  const handleMoveMy = () => router.push("/my");
-  const handleMoveAdmin = () => router.push("/admin");
+  const handleMoveBoard = () => {
+    setValue(0);
+    // router.push("/")
+  };
+  const handleMoveRequestPost = () => {
+    setValue(1);
+    // router.push("/requestPost")
+  };
+  const handleMoveMy = () => {
+    setValue(2);
+    // router.push("/my")
+  };
+  const handleMoveAdmin = () => {
+    setValue(3);
+    // router.push("/admin")
+  };
 
   const CustomBottomNavigationAction = muiStyled(BottomNavigationAction)`
     .MuiBottomNavigationAction-label {
@@ -49,6 +59,7 @@ const BottomNav = () => {
       showLabels
       value={value}
       onChange={(event: any, newValue: number) => {
+        console.log({newValue})
         setValue(newValue);
       }}
     >
@@ -62,18 +73,6 @@ const BottomNav = () => {
         }
       />
       {
-        (session.data?.user as any)?.role === "admin" && 
-        <CustomBottomNavigationAction
-          label="관리자"
-          onClick={handleMoveAdmin}
-          icon={
-            <AdminPanelSettingsIcon
-              style={{ color: value === 3 ? "#0B834B" : "#AEAEB2" }}
-            />
-          }
-        />
-      }
-      {
         (session.data?.user as any)?.role !== "admin" &&
         (session.data?.user as any)?.type !== "reporter" && 
         <CustomBottomNavigationAction
@@ -86,13 +85,27 @@ const BottomNav = () => {
           }
         />
       }
-      <CustomBottomNavigationAction
-        label="마이페이지"
-        onClick={handleMoveMy}
-        icon={
-          <PersonIcon style={{ color: value === 2 ? "#0B834B" : "#AEAEB2" }} />
-        }
-      />
+      {(session.data?.user as any)?.role !== "admin" && 
+        <CustomBottomNavigationAction
+          label="마이페이지"
+          onClick={handleMoveMy}
+          icon={
+            <PersonIcon style={{ color: value === 2 ? "#0B834B" : "#AEAEB2" }} />
+          }
+        />
+      }
+      {
+        (session.data?.user as any)?.role === "admin" && 
+        <CustomBottomNavigationAction
+          label="관리자"
+          onClick={handleMoveAdmin}
+          icon={
+            <AdminPanelSettingsIcon
+              style={{ color: value === 2 ? "#0B834B" : "#AEAEB2" }}
+            />
+          }
+        />
+      }
     </CustomBottomNavigation>
   );
 };
