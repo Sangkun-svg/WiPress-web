@@ -1,7 +1,6 @@
 import { NavBar } from "@/components";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import styled from "styled-components";
 
 const SignUpType = ["requester", "reporter"] as const;
 
@@ -40,31 +39,3 @@ const SignUpTypePage = () => {
 };
 
 export default SignUpTypePage;
- 
- const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 20px;
-`;
-
-const Button = styled.button`
-  width: calc(100% - 1px);
-  border: 1px solid #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: 50px;
-  padding: 18px 12px;
-  border-radius: 6px;
-  background-color: #0B834B;
-  p {
-    color: #fff;
-    text-align: center;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 100%;
-    letter-spacing: 0.14px;
-  }
-`;

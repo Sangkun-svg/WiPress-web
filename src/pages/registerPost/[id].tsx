@@ -1,5 +1,4 @@
 import { ChangeEvent,useState } from "react";
-import styled from "styled-components";
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import IosShareOutlinedIcon from "@mui/icons-material/IosShareOutlined";
@@ -198,7 +197,6 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
       </div>
       <div className="flex flex-col justify-center gap-3 px-4 py-0 pt-7">
         <p className="text-[15px] not-italic font-medium leading-[100%] mb-2.5">Pick한 기자</p>
-        {/* TODO<Client>: Image size 84px 로 맞추기 */}
         {pickRegistors.map((el: any) => {
           const isWritten = post.Comment.some((comment: { user_id: string }) => comment.user_id === el.User.id);
           return (
@@ -240,15 +238,3 @@ const RegisterPostDetail = ({post, user_id, myPick, pickRegistors}: any) => {
 };
 
 export default RegisterPostDetail;
-
-
-const Chip = styled.div`
-  height: 20px;
-  border-radius: 3px;
-  background: #F7F7FA;
-  padding: 3px 4px;
-  gap: 10px;
-  p{
-  }
-`;
-

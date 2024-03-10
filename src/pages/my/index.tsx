@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Avatar } from "@mui/joy";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import BottomNav from "@/components/BottomNav";
 import { useRouter } from "next/router";
@@ -8,6 +7,8 @@ import { signOut } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { supabase } from "@/utils/database";
 import { authOptions } from "../api/auth/[...nextauth]";
+import { useState } from "react";
+import Image from "next/image";
 
 export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
@@ -36,6 +37,7 @@ export const getServerSideProps = async (context:any) => {
 const MyPage = ({user}: any) => {
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL!
+  const [profile] = useState(BASE_URL + user.profile)
 
   const handleMove = (path: string) => router.push(path);
   const handleSignOut = async () => signOut({ callbackUrl: `/` })
@@ -48,13 +50,14 @@ const MyPage = ({user}: any) => {
     router.push("/")
   }
 
+
   return (
     <div className="flex items-center flex-col min-h-screen pt-[26px] pb-0 px-4">
       <div className="w-full max-w-[600px] mb-[60px] mx-auto my-0">
       <p className="text-[19px] not-italic font-semibold leading-[100%]">마이페이지</p>
       <div className="flex justify-between mt-[26px] mb-3.5 mx-0">
         <div className="flex">
-        <Avatar style={{ width: "84px", height: "84px" }} src={user.profile ? BASE_URL + user.profile : ""}/>
+        <Image alt="profile" src={profile} width={84} height={84} style={{ borderRadius: "50%", height: "84px" }}/>
           <div className="flex flex-col justify-center gap-1.5 ml-3">
             <p className="text-lg not-italic font-medium leading-[100%]">{user.name}</p>
             <p className="text-[#4a4a4a] text-[15px] not-italic font-normal leading-[100%]">{user.party}기자</p>

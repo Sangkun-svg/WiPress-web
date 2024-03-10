@@ -63,10 +63,12 @@ const RequestPost = (props: any) => {
   } 
 
   const selectFile = async (event: React.ChangeEvent<any>) => {
+    event.preventDefault();
     setFiles(event.target.files);
   };
 
   const selectImageFile = async (event: React.ChangeEvent<any>) => {
+    event.preventDefault();
     setImage(event.target.files);
   };
 
@@ -137,9 +139,9 @@ const RequestPost = (props: any) => {
     return (
       <div className='flex flex-col w-full gap-2.5'>
         <label className='text-[15px] not-italic font-medium leading-[100%]'>{label}</label>
-        <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' {...rest}/>
+        <input className='w-full max-h-[50px] px-4 py-[18px] rounded-md' {...rest} {...register(registerType, { required: true })} />
       </div>
-    )
+      )
   }
 
 
@@ -155,7 +157,7 @@ const RequestPost = (props: any) => {
         <InputWithLabel
           label="부제목"
           placeholder="ex. 부제목 예시"
-          registerType="title"
+          registerType="subtitle"
         />
         <div className='flex flex-col w-full gap-2.5'>
           <label className='text-[15px] not-italic font-medium leading-[100%]'>내용</label>
@@ -168,7 +170,6 @@ const RequestPost = (props: any) => {
           <p className="text-[#636366] text-sm not-italic font-normal leading-[100%] tracking-[0.14px] mt-3">300자 이하</p>
         </div>
 
-        {/* File */}
         <div className="div className='flex flex-col w-full gap-2.5'">
           <div className="flex items-center">
           <button className="flex w-[130px] justify-center items-center gap-2 shrink-0 self-stretch bg-[white] px-4 py-2 rounded-md" type="button" onClick={handleOpenFileSelector} style={{marginRight: "14px"}}>
@@ -183,7 +184,7 @@ const RequestPost = (props: any) => {
             </div>
           </div>
         </div>
-        {/* Image */}
+
         <div className="div className='flex flex-col w-full gap-2.5'">
         <div style={{display: "flex" , alignItems: "center"}}>
           <button className="flex w-[130px] justify-center items-center gap-2 shrink-0 self-stretch bg-[white] px-4 py-2 rounded-md" type="button" onClick={handleOpenImageFileSelector} style={{marginRight: "14px"}}>

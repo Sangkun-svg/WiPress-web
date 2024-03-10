@@ -63,27 +63,56 @@ const InfoPostDetail = ({post, user_id}: any) => {
   }
 
   const handleDownloadFile = async () => {
-    if(Boolean(user_id) === false) router.push("/signin");
-    else {
-      if(post.file.length === 1){
-        const { data, error } = await supabase
+    const hiddenLink = document.createElement('a');
+    hiddenLink.style.visibility = 'hidden';
+    document.body.appendChild(hiddenLink);
+
+  if (!user_id) {
+    router.push("/signin");
+  } else {
+    if (post.file.length === 1) {
+      const filePath = post.file[0].split("/").at(-1);
+      const { data } = await supabase
         .storage
         .from('POST')
-        // TODO: try add BASE_URL
-        .download(`/file/${post.id}/${post.file[0]}`);
-        if(error) console.error("FILE DOWNLOAD ERROR : ", error)
-        console.log(data)
-      }
-      if(post.file.length > 1){
-        const result = await Promise.all(
-          Object.values(post.file).map((eachfile:any) => {
-            const filePath = eachfile.split("/").at(-1);
-            return supabase.storage.from('POST').download(`file/${post.id}/${filePath}`);
-          }),
-        );
+        .getPublicUrl(`file/${post.id}/${filePath}`);
+      if (data) {
+        try {
+          const response = await fetch(data.publicUrl);
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          hiddenLink.href = url;
+          hiddenLink.download = String(post.title).replaceAll(" ","_");
+          hiddenLink.click();
+        } catch (error) {
+          console.error('Error downloading file:', error);
+        }
       }
     }
+    if (post.file.length > 1) {
+      await Promise.all(
+        post.file.map(async (eachfile:any) => {
+          const filePath = eachfile.split("/").at(-1);
+          const { data } = await supabase.storage.from('POST').getPublicUrl(`file/${post.id}/${filePath}`);
+          if (data) {
+            try {
+              const response = await fetch(data.publicUrl);
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              hiddenLink.href = url;
+              hiddenLink.download = String(post.title).replaceAll(" ","_");
+              hiddenLink.click();
+            } catch (error) {
+              console.error('Error downloading file:', error);
+            }
+          }
+        })
+      );
+    }
   }
+}
+
 
   return (
     <Container>

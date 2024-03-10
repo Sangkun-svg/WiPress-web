@@ -49,7 +49,7 @@ const BasicPostItem = ({ user_id,id,title, content, images, picks, Pick }: Props
       style={{ padding: images  ? "8px" : "20px 8px 18px 20px"}}
       onClick={handleDetailPage} 
     >
-      <div className="flex gap-[10]">
+      <div className="flex gap-[10px]">
         {images &&  
           <CustomImage
             alt="thumbnail"

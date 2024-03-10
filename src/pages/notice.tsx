@@ -31,7 +31,7 @@ export const getServerSideProps = async (context:any) => {
 const NoticePage = (props:any) => {
   const router = useRouter();
   const handleSearch = () => router.push("/search")
-  console.log(props)
+
   return (
     <Layout>
       <div className="w-full flex flex-col mt-[26px] mb-4 mx-0">
