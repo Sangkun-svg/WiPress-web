@@ -19,7 +19,7 @@ export const getServerSideProps = async (context:any) => {
   const req = context.req as any;
   const res = context.res as any;
   const session = await getServerSession(req, res, authOptions)
-  if((session?.user as any).type === "reporter") {
+  if((session?.user as any)?.type === "reporter") {
     return {
       redirect: {
         destination: '/',
